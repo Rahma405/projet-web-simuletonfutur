@@ -1,0 +1,16 @@
+<?php
+session_start();
+require_once __DIR__ . '/../../controller/ProfilC.php';
+
+$ctrl = new ProfilC();
+$id   = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+
+if ($id) {
+    if ($ctrl->deleteProfil($id)) {
+        $_SESSION['message'] = ['type'=>'success','texte'=>"✅ Profil #$id supprimé avec succès."];
+    } else {
+        $_SESSION['message'] = ['type'=>'danger','texte'=>"❌ Impossible de supprimer ce profil."];
+    }
+}
+header('Location: list_profils.php');
+exit;

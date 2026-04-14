@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><?= htmlspecialchars($pageTitle ?? 'Admin') ?> — Simule Ton Futur</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--red:#e63946;--dark:#1d2b4f;--sidebar:#0f1a36;--accent:#f4a261;}
+*{font-family:'Poppins',sans-serif;box-sizing:border-box;}
+body{background:#eef0f5;margin:0;}
+
+/* SIDEBAR */
+.sidebar{width:260px;min-height:100vh;background:var(--sidebar);position:fixed;left:0;top:0;z-index:999;display:flex;flex-direction:column;box-shadow:4px 0 20px rgba(0,0,0,.4);}
+.sidebar-brand{padding:24px 20px 20px;background:linear-gradient(135deg,var(--dark),#162040);border-bottom:1px solid rgba(255,255,255,.07);}
+.sidebar-brand h4{color:#fff;font-weight:700;font-size:1.05rem;margin:0;}
+.sidebar-brand h4 span{color:var(--red);}
+.sidebar-brand small{color:#8899bb;font-size:.72rem;}
+.sidebar-section{padding:14px 20px 4px;font-size:.68rem;font-weight:600;color:#556;letter-spacing:.08em;text-transform:uppercase;}
+.sidebar nav a{display:flex;align-items:center;gap:11px;padding:12px 22px;color:#8899bb;text-decoration:none;font-size:.86rem;border-left:3px solid transparent;transition:all .2s;}
+.sidebar nav a:hover,.sidebar nav a.active{color:#fff;background:rgba(230,57,70,.12);border-left-color:var(--red);}
+.sidebar nav a i{width:17px;text-align:center;font-size:.85rem;}
+.sidebar-footer{margin-top:auto;padding:14px 22px;border-top:1px solid rgba(255,255,255,.05);color:#445;font-size:.72rem;}
+
+/* MAIN */
+.main-content{margin-left:260px;min-height:100vh;}
+.topbar{background:#fff;padding:14px 28px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e0e4ef;box-shadow:0 2px 8px rgba(0,0,0,.05);position:sticky;top:0;z-index:100;}
+.topbar h5{margin:0;font-weight:600;color:var(--dark);font-size:.95rem;}
+.badge-pdo{background:#e8f4fd;color:#1a6fa8;padding:5px 12px;border-radius:20px;font-size:.75rem;font-weight:500;}
+.page-body{padding:26px;}
+
+/* CARDS */
+.card{border:none;border-radius:14px;box-shadow:0 3px 16px rgba(0,0,0,.07);}
+.card-header{background:linear-gradient(135deg,var(--dark),#2a3f6f);color:#fff;border-radius:14px 14px 0 0!important;padding:15px 22px;font-weight:600;font-size:.92rem;}
+
+/* STAT CARDS */
+.stat-card{border-radius:14px;padding:18px 20px;color:#fff;border:none;display:flex;justify-content:space-between;align-items:center;}
+.stat-card.red   {background:linear-gradient(135deg,#e63946,#c1121f);}
+.stat-card.blue  {background:linear-gradient(135deg,#457b9d,#1d3557);}
+.stat-card.orange{background:linear-gradient(135deg,#f4a261,#e76f51);}
+.stat-card.green {background:linear-gradient(135deg,#2a9d8f,#264653);}
+.stat-card .val{font-size:1.9rem;font-weight:700;line-height:1;}
+.stat-card .lbl{font-size:.78rem;opacity:.88;margin-top:3px;}
+.stat-card i{font-size:1.8rem;opacity:.22;}
+
+/* TABLE */
+.table th{background:#f0f3fa;font-weight:600;color:#4a5568;font-size:.8rem;border:none;}
+.table td{vertical-align:middle;font-size:.86rem;}
+.avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--red),var(--accent));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.78rem;flex-shrink:0;}
+
+/* BADGES */
+.badge-admin{background:#fde8ea;color:#c1121f;font-weight:600;font-size:.72rem;padding:3px 9px;border-radius:20px;}
+.badge-user {background:#e8f0fe;color:#1a56db;font-weight:600;font-size:.72rem;padding:3px 9px;border-radius:20px;}
+
+/* FORMS */
+.form-control,.form-select{border-radius:10px;border:1.5px solid #dde3f0;padding:10px 14px;font-size:.87rem;transition:border-color .2s,box-shadow .2s;}
+.form-control:focus,.form-select:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(230,57,70,.1);}
+.form-label{font-weight:500;font-size:.83rem;color:#3a4567;margin-bottom:4px;}
+.is-invalid{border-color:#e63946!important;}
+.invalid-feedback{font-size:.78rem;color:#e63946;}
+
+/* BUTTONS */
+.btn-red{background:var(--red);color:#fff;border:none;border-radius:9px;font-weight:500;font-size:.86rem;}
+.btn-red:hover{background:#c1121f;color:#fff;}
+
+/* ALERT */
+.alert{border:none;border-radius:10px;font-size:.86rem;}
+.alert-success{background:#d1fadf;color:#155724;}
+.alert-danger {background:#fde8ea;color:#7b1d1d;}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-brand">
+    <h4>🚀 <span>Simule</span> Ton Futur</h4>
+    <small>Back Office — Administration</small>
+  </div>
+  <div class="sidebar-section">Gestion</div>
+  <nav>
+    <a href="../../index.php"><i class="fas fa-globe"></i> Site public</a>
+    <a href="../backoffice/list_utilisateurs.php"
+       class="<?= strpos($_SERVER['PHP_SELF'],'utilisateur')!==false?'active':'' ?>">
+      <i class="fas fa-users"></i> Utilisateurs
+    </a>
+    <a href="../backoffice/add_utilisateur.php"><i class="fas fa-user-plus"></i> Ajouter utilisateur</a>
+  </nav>
+  <div class="sidebar-section">Profils</div>
+  <nav>
+    <a href="../backoffice/list_profils.php"
+       class="<?= strpos($_SERVER['PHP_SELF'],'profil')!==false?'active':'' ?>">
+      <i class="fas fa-id-card"></i> Profils
+    </a>
+    <a href="../backoffice/add_profil.php"><i class="fas fa-plus-circle"></i> Ajouter profil</a>
+  </nav>
+  <div class="sidebar-footer">ESPRIT &middot; UP Web &middot; 2025/2026</div>
+</div>
+
+<div class="main-content">
+  <div class="topbar">
+    <h5><i class="fas fa-shield-alt me-2" style="color:var(--red)"></i><?= htmlspecialchars($pageTitle ?? 'Administration') ?></h5>
+    <span class="badge-pdo"><i class="fas fa-database me-1"></i>PDO — MySQL connecté</span>
+  </div>
+  <div class="page-body">
