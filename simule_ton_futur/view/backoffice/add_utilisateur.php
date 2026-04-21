@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($erreurs)) {
         $u = new Utilisateur(null, $old['nom'], $old['prenom'], $old['email'], $old['motDePasse'], $old['role']);
         if ($ctrl->addUtilisateur($u)) {
-            $_SESSION['message'] = ['type'=>'success','texte'=>"✅ Utilisateur \"{$old['prenom']} {$old['nom']}\" ajouté."];
+            $_SESSION['message'] = ['type'=>'success','texte'=>"Utilisateur \"{$old['prenom']} {$old['nom']}\" ajoute."];
             header('Location: list_utilisateurs.php');
             exit;
         }
@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-require_once __DIR__ . '/../../templates/backoffice/header.php';
+require_once __DIR__ . '/layouts/header.php';
 ?>
 
 <div class="row justify-content-center">
@@ -98,4 +98,4 @@ require_once __DIR__ . '/../../templates/backoffice/header.php';
   </div>
 </div>
 
-<?php require_once __DIR__ . '/../../templates/backoffice/footer.php'; ?>
+<?php require_once __DIR__ . '/layouts/footer.php'; ?>

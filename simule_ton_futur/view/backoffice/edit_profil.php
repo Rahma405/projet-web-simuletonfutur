@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'ville'         => trim($_POST['ville']       ?? ''),
         'pays'          => trim($_POST['pays']        ?? ''),
         'langue'        => $_POST['langue']           ?? '',
-        'idUtilisateur' => $p->getIdUtilisateur(),   // on ne change pas l'utilisateur lié
+        'idUtilisateur' => $p->getIdUtilisateur(),
     ];
 
     $erreurs = $ctrl->valider($old);
@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           ->setLangue($old['langue']);
 
         if ($ctrl->updateProfil($p, $id)) {
-            $_SESSION['message'] = ['type'=>'success','texte'=>"✅ Profil mis à jour avec succès."];
+            $_SESSION['message'] = ['type'=>'success','texte'=>"Profil mis a jour avec succes."];
             header('Location: list_profils.php');
             exit;
         }
@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-require_once __DIR__ . '/../../templates/backoffice/header.php';
+require_once __DIR__ . '/layouts/header.php';
 ?>
 
 <div class="row justify-content-center">
@@ -109,4 +109,4 @@ require_once __DIR__ . '/../../templates/backoffice/header.php';
   </div>
 </div>
 
-<?php require_once __DIR__ . '/../../templates/backoffice/footer.php'; ?>
+<?php require_once __DIR__ . '/layouts/footer.php'; ?>

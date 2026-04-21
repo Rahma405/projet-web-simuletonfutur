@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           ->setMotDePasse($old['motDePasse']);
 
         if ($ctrl->updateUtilisateur($u, $id, $changerMdp)) {
-            $_SESSION['message'] = ['type'=>'success','texte'=>"✅ Utilisateur modifié avec succès."];
+            $_SESSION['message'] = ['type'=>'success','texte'=>"Utilisateur modifie avec succes."];
             header('Location: list_utilisateurs.php');
             exit;
         }
@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-require_once __DIR__ . '/../../templates/backoffice/header.php';
+require_once __DIR__ . '/layouts/header.php';
 ?>
 
 <div class="row justify-content-center">
@@ -109,4 +109,4 @@ require_once __DIR__ . '/../../templates/backoffice/header.php';
   </div>
 </div>
 
-<?php require_once __DIR__ . '/../../templates/backoffice/footer.php'; ?>
+<?php require_once __DIR__ . '/layouts/footer.php'; ?>

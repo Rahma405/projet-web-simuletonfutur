@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../model/Utilisateur.php';
 
 /**
@@ -13,6 +13,11 @@ class UtilisateurC
     // ════════════════════════════════════════════════════════
     public function addUtilisateur(Utilisateur $u): bool
     {
+        return $this->createUtilisateur($u) !== null;
+    }
+
+    public function createUtilisateur(Utilisateur $u): ?int
+    {
         $sql = "INSERT INTO utilisateur (nom, prenom, email, motDePasse, role)
                 VALUES (:nom, :prenom, :email, :motDePasse, :role)";
         try {
@@ -24,10 +29,10 @@ class UtilisateurC
                 ':motDePasse' => password_hash($u->getMotDePasse(), PASSWORD_BCRYPT),
                 ':role'       => $u->getRole(),
             ]);
-            return true;
+            return (int) Config::getConnexion()->lastInsertId();
         } catch (PDOException $e) {
             error_log('addUtilisateur: ' . $e->getMessage());
-            return false;
+            return null;
         }
     }
 
@@ -61,6 +66,25 @@ class UtilisateurC
     // ════════════════════════════════════════════════════════
     //  U — UPDATE
     // ════════════════════════════════════════════════════════
+    public function login(string $email, string $motDePasse): ?Utilisateur
+    {
+        try {
+            $q = Config::getConnexion()
+                       ->prepare("SELECT * FROM utilisateur WHERE email = :email");
+            $q->execute([':email' => trim($email)]);
+            $row = $q->fetch();
+
+            if ($row && password_verify($motDePasse, $row['motDePasse'])) {
+                return $this->rowToObject($row);
+            }
+
+            return null;
+        } catch (PDOException $e) {
+            error_log('login: ' . $e->getMessage());
+            return null;
+        }
+    }
+
     public function updateUtilisateur(Utilisateur $u, int $id, bool $changerMdp = false): bool
     {
         if ($changerMdp) {

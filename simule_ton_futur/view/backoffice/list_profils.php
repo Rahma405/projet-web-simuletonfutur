@@ -10,7 +10,7 @@ $liste     = $terme !== '' ? $ctrl->search($terme) : $ctrl->listProfils();
 $message = $_SESSION['message'] ?? null;
 if (isset($_SESSION['message'])) unset($_SESSION['message']);
 
-require_once __DIR__ . '/../../templates/backoffice/header.php';
+require_once __DIR__ . '/layouts/header.php';
 ?>
 
 <?php if ($message): ?>
@@ -82,4 +82,4 @@ require_once __DIR__ . '/../../templates/backoffice/header.php';
   </div>
 </div>
 
-<?php require_once __DIR__ . '/../../templates/backoffice/footer.php'; ?>
+<?php require_once __DIR__ . '/layouts/footer.php'; ?>

@@ -23,20 +23,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $erreurs = $ctrlP->valider($old);
 
     if (empty($erreurs)) {
+        $profilExistant = $ctrlP->getByIdUtilisateur((int)$old['idUtilisateur']);
         $p = new Profil(
-            null, $old['bio'], $old['photoProfil'] ?: 'default.png',
+            $profilExistant ? $profilExistant->getIdProfil() : null,
+            $old['bio'], $old['photoProfil'] ?: 'default.png',
             $old['ville'], $old['pays'], $old['langue'], (int)$old['idUtilisateur']
         );
-        if ($ctrlP->addProfil($p)) {
-            $_SESSION['message'] = ['type'=>'success','texte'=>"✅ Profil ajouté avec succès."];
+
+        $ok = $profilExistant
+            ? $ctrlP->updateProfil($p, $profilExistant->getIdProfil())
+            : $ctrlP->addProfil($p);
+
+        if ($ok) {
+            $_SESSION['message'] = [
+                'type'=>'success',
+                'texte'=> $profilExistant ? "Profil mis a jour avec succes." : "Profil ajoute avec succes."
+            ];
             header('Location: list_profils.php');
             exit;
         }
-        $erreurs['global'] = "Erreur lors de l'ajout. Cet utilisateur a peut-être déjà un profil.";
+        $erreurs['global'] = "Erreur lors de l'enregistrement du profil.";
     }
 }
 
-require_once __DIR__ . '/../../templates/backoffice/header.php';
+require_once __DIR__ . '/layouts/header.php';
 ?>
 
 <div class="row justify-content-center">
@@ -118,4 +128,4 @@ require_once __DIR__ . '/../../templates/backoffice/header.php';
   </div>
 </div>
 
-<?php require_once __DIR__ . '/../../templates/backoffice/footer.php'; ?>
+<?php require_once __DIR__ . '/layouts/footer.php'; ?>

@@ -8,9 +8,9 @@ $id   = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 if ($id) {
     $u = $ctrl->getById($id);
     if ($u && $ctrl->deleteUtilisateur($id)) {
-        $_SESSION['message'] = ['type'=>'success','texte'=>"✅ Utilisateur \"{$u->getPrenom()} {$u->getNom()}\" supprimé."];
+        $_SESSION['message'] = ['type'=>'success','texte'=>"Utilisateur \"{$u->getPrenom()} {$u->getNom()}\" supprime."];
     } else {
-        $_SESSION['message'] = ['type'=>'danger','texte'=>"❌ Impossible de supprimer cet utilisateur."];
+        $_SESSION['message'] = ['type'=>'danger','texte'=>"Impossible de supprimer cet utilisateur."];
     }
 }
 header('Location: list_utilisateurs.php');
