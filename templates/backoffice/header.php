@@ -77,6 +77,13 @@ body{background:#eef0f5;margin:0;}
     </a>
     <a href="../backoffice/add_competence.php"><i class="fas fa-plus-circle"></i> Ajouter Compétence</a>
   </nav>
+  <div class="sidebar-section">Expériences</div>
+  <nav>
+    <a href="../backoffice/list_experiences.php" class="<?= strpos($_SERVER['PHP_SELF'],'experience')!==false?'active':'' ?>">
+      <i class="fas fa-history"></i> Liste Expériences
+    </a>
+    <a href="../backoffice/add_experience.php"><i class="fas fa-plus-circle"></i> Ajouter Expérience</a>
+  </nav>
   <div class="sidebar-footer">ESPRIT &middot; UP Web &middot; 2025/2026</div>
 </div>
 
