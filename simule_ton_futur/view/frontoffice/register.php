@@ -53,7 +53,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $erreurs['global'] = "Erreur lors de la creation du compte.";
     }
 }
-
 require_once __DIR__ . '/layouts/header.php';
 ?>
 
@@ -140,7 +139,7 @@ require_once __DIR__ . '/layouts/header.php';
             </div>
 
             <button type="submit" class="btn-hero w-100" style="border-radius:10px;padding:13px;"><i class="fas fa-rocket me-2"></i>Creer mon compte</button>
-            <div class="text-center mt-3"><a href="../../index.php" style="color:#8899bb;font-size:.8rem;text-decoration:none;"><i class="fas fa-arrow-left me-1"></i>Retour a l'accueil</a></div>
+            <div class="text-center mt-3"><a href="<?= $baseUrl ?>/index.php" style="color:#8899bb;font-size:.8rem;text-decoration:none;"><i class="fas fa-arrow-left me-1"></i>Retour a l'accueil</a></div>
           </form>
         </div>
       </div>

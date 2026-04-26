@@ -3,31 +3,35 @@ session_start();
 require_once __DIR__ . '/../../controller/ProfilC.php';
 require_once __DIR__ . '/../../controller/UtilisateurC.php';
 
-$ctrlP     = new ProfilC();
-$ctrlU     = new UtilisateurC();
+$ctrlP = new ProfilC();
+$ctrlU = new UtilisateurC();
 $pageTitle = 'Ajouter un Profil';
-$erreurs   = [];
-$old       = [];
+$erreurs = [];
+$old = [];
 $utilisateurs = $ctrlU->listUtilisateurs();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $old = [
-        'bio'           => trim($_POST['bio']           ?? ''),
-        'photoProfil'   => trim($_POST['photoProfil']   ?? 'default.png'),
-        'ville'         => trim($_POST['ville']         ?? ''),
-        'pays'          => trim($_POST['pays']          ?? ''),
-        'langue'        => $_POST['langue']             ?? '',
-        'idUtilisateur' => $_POST['idUtilisateur']     ?? '',
+        'bio' => trim($_POST['bio'] ?? ''),
+        'photoProfil' => trim($_POST['photoProfil'] ?? 'default.png'),
+        'ville' => trim($_POST['ville'] ?? ''),
+        'pays' => trim($_POST['pays'] ?? ''),
+        'langue' => $_POST['langue'] ?? '',
+        'idUtilisateur' => $_POST['idUtilisateur'] ?? '',
     ];
 
     $erreurs = $ctrlP->valider($old);
 
     if (empty($erreurs)) {
-        $profilExistant = $ctrlP->getByIdUtilisateur((int)$old['idUtilisateur']);
+        $profilExistant = $ctrlP->getByIdUtilisateur((int) $old['idUtilisateur']);
         $p = new Profil(
             $profilExistant ? $profilExistant->getIdProfil() : null,
-            $old['bio'], $old['photoProfil'] ?: 'default.png',
-            $old['ville'], $old['pays'], $old['langue'], (int)$old['idUtilisateur']
+            $old['bio'],
+            $old['photoProfil'] ?: 'default.png',
+            $old['ville'],
+            $old['pays'],
+            $old['langue'],
+            (int) $old['idUtilisateur']
         );
 
         $ok = $profilExistant
@@ -36,8 +40,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($ok) {
             $_SESSION['message'] = [
-                'type'=>'success',
-                'texte'=> $profilExistant ? "Profil mis a jour avec succes." : "Profil ajoute avec succes."
+                'type' => 'success',
+                'texte' => $profilExistant ? 'Profil mis a jour avec succes.' : 'Profil ajoute avec succes.',
             ];
             header('Location: list_profils.php');
             exit;
@@ -45,7 +49,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $erreurs['global'] = "Erreur lors de l'enregistrement du profil.";
     }
 }
-
 require_once __DIR__ . '/layouts/header.php';
 ?>
 

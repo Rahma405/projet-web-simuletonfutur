@@ -2,26 +2,33 @@
 session_start();
 require_once __DIR__ . '/../../controller/UtilisateurC.php';
 
-$ctrl    = new UtilisateurC();
+$ctrl = new UtilisateurC();
 $erreurs = [];
-$id      = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
-if (!$id) { header('Location: list_utilisateurs.php'); exit; }
+$id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+
+if (!$id) {
+    header('Location: list_utilisateurs.php');
+    exit;
+}
 
 $u = $ctrl->getById($id);
-if (!$u)  { header('Location: list_utilisateurs.php'); exit; }
+if (!$u) {
+    header('Location: list_utilisateurs.php');
+    exit;
+}
 
 $pageTitle = 'Modifier : ' . $u->getPrenom() . ' ' . $u->getNom();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $old = [
-        'nom'        => trim($_POST['nom']        ?? ''),
-        'prenom'     => trim($_POST['prenom']      ?? ''),
-        'email'      => trim($_POST['email']       ?? ''),
-        'motDePasse' => $_POST['motDePasse']       ?? '',
-        'role'       => $_POST['role']             ?? '',
+        'nom' => trim($_POST['nom'] ?? ''),
+        'prenom' => trim($_POST['prenom'] ?? ''),
+        'email' => trim($_POST['email'] ?? ''),
+        'motDePasse' => $_POST['motDePasse'] ?? '',
+        'role' => $_POST['role'] ?? '',
     ];
 
-    $erreurs    = $ctrl->valider($old, $id, false);
+    $erreurs = $ctrl->valider($old, $id, false);
     $changerMdp = !empty($old['motDePasse']);
 
     if (empty($erreurs)) {
@@ -30,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           ->setMotDePasse($old['motDePasse']);
 
         if ($ctrl->updateUtilisateur($u, $id, $changerMdp)) {
-            $_SESSION['message'] = ['type'=>'success','texte'=>"Utilisateur modifie avec succes."];
+            $_SESSION['message'] = ['type' => 'success', 'texte' => 'Utilisateur modifie avec succes.'];
             header('Location: list_utilisateurs.php');
             exit;
         }
@@ -40,7 +47,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           ->setEmail($old['email'])->setRole($old['role']);
     }
 }
-
 require_once __DIR__ . '/layouts/header.php';
 ?>
 

@@ -2,6 +2,12 @@
 session_start();
 require_once __DIR__ . '/../../controller/UtilisateurC.php';
 
+if (!isset($_SESSION['user'])) {
+    $_SESSION['message'] = ['type' => 'danger', 'texte' => 'Veuillez vous connecter pour modifier votre compte.'];
+    header('Location: login.php');
+    exit;
+}
+
 $ctrl = new UtilisateurC();
 $erreurs = [];
 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
@@ -17,6 +23,14 @@ if (!$u) {
     exit;
 }
 
+$sessionUser = $_SESSION['user'];
+$estAdmin = ($sessionUser['role'] ?? '') === 'admin';
+if (!$estAdmin && (int) $sessionUser['id'] !== (int) $u->getIdUtilisateur()) {
+    $_SESSION['message'] = ['type' => 'danger', 'texte' => 'Vous ne pouvez modifier que votre propre compte.'];
+    header('Location: ../../index.php');
+    exit;
+}
+
 $pageTitle = 'Modifier utilisateur';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -25,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'prenom' => trim($_POST['prenom'] ?? ''),
         'email' => trim($_POST['email'] ?? ''),
         'motDePasse' => $_POST['motDePasse'] ?? '',
-        'role' => $u->getRole(),
+        'role' => $estAdmin ? ($_POST['role'] ?? $u->getRole()) : $u->getRole(),
     ];
 
     $erreurs = $ctrl->valider($old, $id, false);
@@ -35,9 +49,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $u->setNom($old['nom'])
           ->setPrenom($old['prenom'])
           ->setEmail($old['email'])
+          ->setRole($old['role'])
           ->setMotDePasse($old['motDePasse']);
 
         if ($ctrl->updateUtilisateur($u, $id, $changerMdp)) {
+            if ((int) $sessionUser['id'] === $id) {
+                $_SESSION['user']['nom'] = $u->getNom();
+                $_SESSION['user']['prenom'] = $u->getPrenom();
+                $_SESSION['user']['email'] = $u->getEmail();
+                $_SESSION['user']['role'] = $u->getRole();
+            }
             $_SESSION['message'] = ['type' => 'success', 'texte' => 'Utilisateur modifie avec succes.'];
             header('Location: list_utilisateurs.php');
             exit;
@@ -45,10 +66,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $erreurs['global'] = "Erreur lors de la modification.";
     } else {
-        $u->setNom($old['nom'])->setPrenom($old['prenom'])->setEmail($old['email']);
+        $u->setNom($old['nom'])->setPrenom($old['prenom'])->setEmail($old['email'])->setRole($old['role']);
     }
 }
-
 require_once __DIR__ . '/layouts/header.php';
 ?>
 

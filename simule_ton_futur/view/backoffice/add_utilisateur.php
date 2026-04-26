@@ -2,18 +2,18 @@
 session_start();
 require_once __DIR__ . '/../../controller/UtilisateurC.php';
 
-$ctrl      = new UtilisateurC();
+$ctrl = new UtilisateurC();
 $pageTitle = 'Ajouter un Utilisateur';
-$erreurs   = [];
-$old       = [];
+$erreurs = [];
+$old = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $old = [
-        'nom'        => trim($_POST['nom']        ?? ''),
-        'prenom'     => trim($_POST['prenom']      ?? ''),
-        'email'      => trim($_POST['email']       ?? ''),
-        'motDePasse' => $_POST['motDePasse']       ?? '',
-        'role'       => $_POST['role']             ?? '',
+        'nom' => trim($_POST['nom'] ?? ''),
+        'prenom' => trim($_POST['prenom'] ?? ''),
+        'email' => trim($_POST['email'] ?? ''),
+        'motDePasse' => $_POST['motDePasse'] ?? '',
+        'role' => $_POST['role'] ?? '',
     ];
 
     $erreurs = $ctrl->valider($old, 0, true);
@@ -21,14 +21,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($erreurs)) {
         $u = new Utilisateur(null, $old['nom'], $old['prenom'], $old['email'], $old['motDePasse'], $old['role']);
         if ($ctrl->addUtilisateur($u)) {
-            $_SESSION['message'] = ['type'=>'success','texte'=>"Utilisateur \"{$old['prenom']} {$old['nom']}\" ajoute."];
+            $_SESSION['message'] = ['type' => 'success', 'texte' => "Utilisateur \"{$old['prenom']} {$old['nom']}\" ajoute."];
             header('Location: list_utilisateurs.php');
             exit;
         }
         $erreurs['global'] = "Erreur lors de l'ajout.";
     }
 }
-
 require_once __DIR__ . '/layouts/header.php';
 ?>
 

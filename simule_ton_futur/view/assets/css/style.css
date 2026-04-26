@@ -96,6 +96,14 @@ body.front-office .navbar {
   box-shadow: 0 2px 20px rgba(0, 0, 0, .3);
 }
 
+body.front-office .navbar .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
 body.front-office .navbar-brand {
   font-weight: 800;
   font-size: 1.15rem;
@@ -117,11 +125,64 @@ body.front-office .nav-link:hover {
   color: #fff !important;
 }
 
+body.front-office .navbar-collapse {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 1 1 auto;
+}
+
+body.front-office .navbar-nav {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
 body.front-office .nav-link.admin-link {
   background: rgba(230, 57, 70, .15);
   color: var(--red) !important;
   border-radius: 20px;
   padding: 5px 14px !important;
+}
+
+.nav-user-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  border-radius: 0;
+  background: transparent;
+  border: 0;
+  color: #fff;
+}
+
+.nav-user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, .12);
+  color: #fff;
+  font-size: .72rem;
+  font-weight: 700;
+  border: 1px solid rgba(255, 255, 255, .14);
+}
+
+.nav-user-text {
+  font-size: .86rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.nav-logout {
+  color: #d8e1f0 !important;
+}
+
+.nav-logout:hover {
+  color: #fff !important;
 }
 
 body.front-office .card {

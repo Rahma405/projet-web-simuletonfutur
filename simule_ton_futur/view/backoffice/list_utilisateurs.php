@@ -2,15 +2,16 @@
 session_start();
 require_once __DIR__ . '/../../controller/UtilisateurC.php';
 
-$ctrl      = new UtilisateurC();
+$ctrl = new UtilisateurC();
 $pageTitle = 'Gestion des Utilisateurs';
-$terme     = trim($_GET['search'] ?? '');
-$liste     = $terme !== '' ? $ctrl->search($terme) : $ctrl->listUtilisateurs();
-$stats     = $ctrl->getStats();
+$terme = trim($_GET['search'] ?? '');
+$liste = $terme !== '' ? $ctrl->search($terme) : $ctrl->listUtilisateurs();
+$stats = $ctrl->getStats();
 
 $message = $_SESSION['message'] ?? null;
-if (isset($_SESSION['message'])) unset($_SESSION['message']);
-
+if (isset($_SESSION['message'])) {
+    unset($_SESSION['message']);
+}
 require_once __DIR__ . '/layouts/header.php';
 ?>
 

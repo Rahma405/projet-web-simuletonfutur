@@ -7,6 +7,11 @@ $pageTitle = 'Connexion';
 $erreurs = [];
 $old = ['email' => ''];
 
+if (isset($_SESSION['user'])) {
+    header('Location: ../../index.php');
+    exit;
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $old['email'] = trim($_POST['email'] ?? '');
     $motDePasse = $_POST['motDePasse'] ?? '';
@@ -32,7 +37,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'email' => $utilisateur->getEmail(),
                 'role' => $utilisateur->getRole(),
             ];
-
             $_SESSION['message'] = [
                 'type' => 'success',
                 'texte' => 'Connexion reussie. Bienvenue ' . $utilisateur->getPrenom() . ' !',
@@ -49,7 +53,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $erreurs['global'] = "Email ou mot de passe incorrect.";
     }
 }
-
 require_once __DIR__ . '/layouts/header.php';
 ?>
 
@@ -105,7 +108,7 @@ require_once __DIR__ . '/layouts/header.php';
 
       <div class="login-register">
         Pas encore de compte ?
-        <a href="<?= $baseUrl ?>/view/frontoffice/register.php">Creer un compte</a>
+      <a href="<?= $baseUrl ?>/view/frontoffice/register.php">Creer un compte</a>
       </div>
     </form>
   </div>

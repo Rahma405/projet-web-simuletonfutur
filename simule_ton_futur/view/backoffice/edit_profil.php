@@ -2,23 +2,30 @@
 session_start();
 require_once __DIR__ . '/../../controller/ProfilC.php';
 
-$ctrl    = new ProfilC();
+$ctrl = new ProfilC();
 $erreurs = [];
-$id      = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
-if (!$id) { header('Location: list_profils.php'); exit; }
+$id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+
+if (!$id) {
+    header('Location: list_profils.php');
+    exit;
+}
 
 $p = $ctrl->getById($id);
-if (!$p)  { header('Location: list_profils.php'); exit; }
+if (!$p) {
+    header('Location: list_profils.php');
+    exit;
+}
 
 $pageTitle = 'Modifier le Profil #' . $id;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $old = [
-        'bio'           => trim($_POST['bio']         ?? ''),
-        'photoProfil'   => trim($_POST['photoProfil'] ?? 'default.png'),
-        'ville'         => trim($_POST['ville']       ?? ''),
-        'pays'          => trim($_POST['pays']        ?? ''),
-        'langue'        => $_POST['langue']           ?? '',
+        'bio' => trim($_POST['bio'] ?? ''),
+        'photoProfil' => trim($_POST['photoProfil'] ?? 'default.png'),
+        'ville' => trim($_POST['ville'] ?? ''),
+        'pays' => trim($_POST['pays'] ?? ''),
+        'langue' => $_POST['langue'] ?? '',
         'idUtilisateur' => $p->getIdUtilisateur(),
     ];
 
@@ -32,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           ->setLangue($old['langue']);
 
         if ($ctrl->updateProfil($p, $id)) {
-            $_SESSION['message'] = ['type'=>'success','texte'=>"Profil mis a jour avec succes."];
+            $_SESSION['message'] = ['type' => 'success', 'texte' => 'Profil mis a jour avec succes.'];
             header('Location: list_profils.php');
             exit;
         }
@@ -42,7 +49,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           ->setVille($old['ville'])->setPays($old['pays'])->setLangue($old['langue']);
     }
 }
-
 require_once __DIR__ . '/layouts/header.php';
 ?>
 

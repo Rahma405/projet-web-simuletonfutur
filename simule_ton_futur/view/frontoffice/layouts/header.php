@@ -2,6 +2,7 @@
 $scriptDir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? ''));
 $baseUrl = preg_replace('#/view(?:/.*)?$#', '', $scriptDir);
 $baseUrl = rtrim($baseUrl, '/');
+$sessionUser = $_SESSION['user'] ?? null;
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -15,18 +16,30 @@ $baseUrl = rtrim($baseUrl, '/');
 <link href="<?= $baseUrl ?>/view/assets/css/style.css" rel="stylesheet">
 </head>
 <body class="front-office">
-<nav class="navbar navbar-expand-lg">
+<nav class="navbar navbar-expand">
   <div class="container">
-    <a class="navbar-brand" href="<?= $baseUrl ?>/index.php">STF <span>Simule</span> Ton Futur</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
-      <span class="navbar-toggler-icon" style="filter:invert(1)"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="nav">
+    <a class="navbar-brand" href="<?= $baseUrl ?>/index.php">STF<span>simuletonfutur</span></a>
+    <div class="navbar-collapse" id="nav">
       <ul class="navbar-nav ms-auto align-items-center gap-2">
         <li class="nav-item"><a class="nav-link" href="<?= $baseUrl ?>/index.php"><i class="fas fa-home me-1"></i>Accueil</a></li>
-        <li class="nav-item"><a class="nav-link" href="<?= $baseUrl ?>/view/frontoffice/register.php"><i class="fas fa-user-plus me-1"></i>S'inscrire</a></li>
-        <li class="nav-item"><a class="nav-link" href="<?= $baseUrl ?>/view/frontoffice/login.php"><i class="fas fa-sign-in-alt me-1"></i>Connexion</a></li>
-        <li class="nav-item"><a class="nav-link admin-link" href="<?= $baseUrl ?>/view/backoffice/list_utilisateurs.php"><i class="fas fa-shield-alt me-1"></i>Admin</a></li>
+        <?php if ($sessionUser): ?>
+          <li class="nav-item">
+            <span class="nav-user-chip">
+              <span class="nav-user-avatar">
+                <?= htmlspecialchars(strtoupper(substr($sessionUser['prenom'], 0, 1) . substr($sessionUser['nom'], 0, 1))) ?>
+              </span>
+              <span class="nav-user-text"><?= htmlspecialchars($sessionUser['prenom'] . ' ' . $sessionUser['nom']) ?></span>
+            </span>
+          </li>
+          <li class="nav-item"><a class="nav-link nav-logout" href="<?= $baseUrl ?>/view/frontoffice/logout.php"><i class="fas fa-sign-out-alt me-1"></i>Deconnexion</a></li>
+          <?php if (($sessionUser['role'] ?? '') === 'admin'): ?>
+            <li class="nav-item"><a class="nav-link admin-link" href="<?= $baseUrl ?>/view/backoffice/list_utilisateurs.php"><i class="fas fa-shield-alt me-1"></i>Admin</a></li>
+          <?php endif; ?>
+        <?php else: ?>
+          <li class="nav-item"><a class="nav-link" href="<?= $baseUrl ?>/view/frontoffice/register.php"><i class="fas fa-user-plus me-1"></i>S'inscrire</a></li>
+          <li class="nav-item"><a class="nav-link" href="<?= $baseUrl ?>/view/frontoffice/login.php"><i class="fas fa-sign-in-alt me-1"></i>Connexion</a></li>
+          <li class="nav-item"><a class="nav-link admin-link" href="<?= $baseUrl ?>/view/backoffice/list_utilisateurs.php"><i class="fas fa-shield-alt me-1"></i>Admin</a></li>
+        <?php endif; ?>
       </ul>
     </div>
   </div>  

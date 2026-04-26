@@ -18,7 +18,7 @@ $baseUrl = rtrim($baseUrl, '/');
 
 <div class="sidebar">
   <div class="sidebar-brand">
-    <h4>STF <span>Simule</span> Ton Futur</h4>
+    <h4>STF</h4>
     <small>Back Office - Administration</small>
   </div>
   <div class="sidebar-section">Gestion</div>

@@ -11,7 +11,6 @@ $message = $_SESSION['message'] ?? null;
 if (isset($_SESSION['message'])) {
     unset($_SESSION['message']);
 }
-
 require_once __DIR__ . '/layouts/header.php';
 ?>
 
