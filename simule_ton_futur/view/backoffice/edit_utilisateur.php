@@ -26,6 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'email' => trim($_POST['email'] ?? ''),
         'motDePasse' => $_POST['motDePasse'] ?? '',
         'role' => $_POST['role'] ?? '',
+        'statut' => $_POST['statut'] ?? '',
     ];
 
     $erreurs = $ctrl->valider($old, $id, false);
@@ -34,6 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($erreurs)) {
         $u->setNom($old['nom'])->setPrenom($old['prenom'])
           ->setEmail($old['email'])->setRole($old['role'])
+          ->setStatut($old['statut'])
           ->setMotDePasse($old['motDePasse']);
 
         if ($ctrl->updateUtilisateur($u, $id, $changerMdp)) {
@@ -44,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $erreurs['global'] = "Erreur lors de la modification.";
     } else {
         $u->setNom($old['nom'])->setPrenom($old['prenom'])
-          ->setEmail($old['email'])->setRole($old['role']);
+          ->setEmail($old['email'])->setRole($old['role'])->setStatut($old['statut']);
     }
 }
 require_once __DIR__ . '/layouts/header.php';
@@ -71,7 +73,7 @@ require_once __DIR__ . '/layouts/header.php';
               <?php if (isset($erreurs['nom'])): ?><div class="invalid-feedback"><?= htmlspecialchars($erreurs['nom']) ?></div><?php endif; ?>
             </div>
             <div class="col-md-6">
-              <label class="form-label">Prénom <span style="color:#e63946">*</span></label>
+              <label class="form-label">Prenom <span style="color:#e63946">*</span></label>
               <input type="text" name="prenom"
                 class="form-control <?= isset($erreurs['prenom'])?'is-invalid':'' ?>"
                 value="<?= htmlspecialchars($u->getPrenom() ?? '') ?>">
@@ -89,20 +91,30 @@ require_once __DIR__ . '/layouts/header.php';
 
           <div class="row mb-3">
             <div class="col-md-6">
-              <label class="form-label">Nouveau mot de passe <small class="text-muted">(laisser vide = inchangé)</small></label>
+              <label class="form-label">Nouveau mot de passe <small class="text-muted">(laisser vide = inchange)</small></label>
               <input type="password" name="motDePasse"
                 class="form-control <?= isset($erreurs['motDePasse'])?'is-invalid':'' ?>"
-                placeholder="Minimum 6 caractères">
+                placeholder="Minimum 6 caracteres">
               <?php if (isset($erreurs['motDePasse'])): ?><div class="invalid-feedback"><?= htmlspecialchars($erreurs['motDePasse']) ?></div><?php endif; ?>
             </div>
             <div class="col-md-6">
-              <label class="form-label">Rôle <span style="color:#e63946">*</span></label>
+              <label class="form-label">Role <span style="color:#e63946">*</span></label>
               <select name="role" class="form-select <?= isset($erreurs['role'])?'is-invalid':'' ?>">
                 <option value="user"  <?= $u->getRole()==='user' ?'selected':'' ?>>Utilisateur</option>
                 <option value="admin" <?= $u->getRole()==='admin'?'selected':'' ?>>Administrateur</option>
               </select>
               <?php if (isset($erreurs['role'])): ?><div class="invalid-feedback"><?= htmlspecialchars($erreurs['role']) ?></div><?php endif; ?>
             </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Statut <span style="color:#e63946">*</span></label>
+            <select name="statut" class="form-select <?= isset($erreurs['statut'])?'is-invalid':'' ?>">
+              <option value="actif" <?= $u->getStatut()==='actif' ?'selected':'' ?>>Actif</option>
+              <option value="bloque" <?= $u->getStatut()==='bloque'?'selected':'' ?>>Bloque</option>
+              <option value="en_attente" <?= $u->getStatut()==='en_attente'?'selected':'' ?>>En attente</option>
+            </select>
+            <?php if (isset($erreurs['statut'])): ?><div class="invalid-feedback"><?= htmlspecialchars($erreurs['statut']) ?></div><?php endif; ?>
           </div>
 
           <div class="d-flex gap-2 mt-4">

@@ -1,8 +1,5 @@
 <?php
-/**
- * Profil.php — Modèle (Model)
- * Encapsulation complète : attributs private + getters/setters
- */
+
 class Profil
 {
     private ?int    $idProfil      = null;
@@ -15,7 +12,7 @@ class Profil
 
     public function __construct(
         $idProfil      = null,
-        $bio           = null,
+        $bio           = null,  
         $photoProfil   = 'default.png',
         $ville         = null,
         $pays          = null,
@@ -31,7 +28,7 @@ class Profil
         $this->idUtilisateur = $idUtilisateur;
     }
 
-    // ── Getters ──────────────────────────────────────────────
+    
     public function getIdProfil(): ?int      { return $this->idProfil;      }
     public function getBio(): ?string        { return $this->bio;           }
     public function getPhotoProfil(): string { return $this->photoProfil ?? 'default.png'; }
@@ -40,7 +37,6 @@ class Profil
     public function getLangue(): ?string     { return $this->langue;        }
     public function getIdUtilisateur(): ?int { return $this->idUtilisateur; }
 
-    // ── Setters ──────────────────────────────────────────────
     public function setIdProfil(?int $v): self       { $this->idProfil      = $v; return $this; }
     public function setBio(?string $v): self         { $this->bio           = $v; return $this; }
     public function setPhotoProfil(?string $v): self { $this->photoProfil   = $v; return $this; }

@@ -8,6 +8,12 @@ if (!isset($_SESSION['user'])) {
     exit;
 }
 
+if (($_SESSION['user']['statut'] ?? 'actif') === 'en_attente') {
+    $_SESSION['message'] = ['type' => 'danger', 'texte' => "Votre compte est en attente. Cette action n'est pas encore autorisee."];
+    header('Location: list_utilisateurs.php');
+    exit;
+}
+
 $ctrl = new UtilisateurC();
 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 $sessionUser = $_SESSION['user'];

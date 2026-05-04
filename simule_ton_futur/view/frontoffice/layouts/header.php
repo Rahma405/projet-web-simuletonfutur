@@ -3,6 +3,8 @@ $scriptDir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? ''));
 $baseUrl = preg_replace('#/view(?:/.*)?$#', '', $scriptDir);
 $baseUrl = rtrim($baseUrl, '/');
 $sessionUser = $_SESSION['user'] ?? null;
+$stylePath = __DIR__ . '/../../assets/css/style.css';
+$styleVersion = file_exists($stylePath) ? filemtime($stylePath) : time();
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -13,7 +15,7 @@ $sessionUser = $_SESSION['user'] ?? null;
 <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link href="<?= $baseUrl ?>/view/assets/css/style.css" rel="stylesheet">
+<link href="<?= $baseUrl ?>/view/assets/css/style.css?v=<?= urlencode((string) $styleVersion) ?>" rel="stylesheet">
 </head>
 <body class="front-office">
 <nav class="navbar navbar-expand">

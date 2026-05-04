@@ -8,6 +8,12 @@ if (!isset($_SESSION['user'])) {
     exit;
 }
 
+if (($_SESSION['user']['statut'] ?? 'actif') === 'en_attente') {
+    $_SESSION['message'] = ['type' => 'danger', 'texte' => "Votre compte est en attente. Cette action n'est pas encore autorisee."];
+    header('Location: list_utilisateurs.php');
+    exit;
+}
+
 $ctrl = new UtilisateurC();
 $erreurs = [];
 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
@@ -40,6 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'email' => trim($_POST['email'] ?? ''),
         'motDePasse' => $_POST['motDePasse'] ?? '',
         'role' => $estAdmin ? ($_POST['role'] ?? $u->getRole()) : $u->getRole(),
+        'statut' => $estAdmin ? ($_POST['statut'] ?? $u->getStatut()) : $u->getStatut(),
     ];
 
     $erreurs = $ctrl->valider($old, $id, false);
@@ -50,6 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           ->setPrenom($old['prenom'])
           ->setEmail($old['email'])
           ->setRole($old['role'])
+          ->setStatut($old['statut'])
           ->setMotDePasse($old['motDePasse']);
 
         if ($ctrl->updateUtilisateur($u, $id, $changerMdp)) {
@@ -58,6 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['user']['prenom'] = $u->getPrenom();
                 $_SESSION['user']['email'] = $u->getEmail();
                 $_SESSION['user']['role'] = $u->getRole();
+                $_SESSION['user']['statut'] = $u->getStatut();
             }
             $_SESSION['message'] = ['type' => 'success', 'texte' => 'Utilisateur modifie avec succes.'];
             header('Location: list_utilisateurs.php');
@@ -66,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $erreurs['global'] = "Erreur lors de la modification.";
     } else {
-        $u->setNom($old['nom'])->setPrenom($old['prenom'])->setEmail($old['email'])->setRole($old['role']);
+        $u->setNom($old['nom'])->setPrenom($old['prenom'])->setEmail($old['email'])->setRole($old['role'])->setStatut($old['statut']);
     }
 }
 require_once __DIR__ . '/layouts/header.php';

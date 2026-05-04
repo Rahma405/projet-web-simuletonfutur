@@ -13,6 +13,10 @@ class ProfilC
     // ════════════════════════════════════════════════════════
     public function addProfil(Profil $p): bool
     {
+        if ($this->profilExistePourUtilisateur((int) $p->getIdUtilisateur())) {
+            return false;
+        }
+
         $sql = "INSERT INTO profil (bio, photoProfil, ville, pays, langue, idUtilisateur)
                 VALUES (:bio, :photoProfil, :ville, :pays, :langue, :idUtilisateur)";
         try {
@@ -35,17 +39,18 @@ class ProfilC
     // ════════════════════════════════════════════════════════
     //  R — READ : tous les profils (avec jointure utilisateur)
     // ════════════════════════════════════════════════════════
-    public function listProfils(): array
+    public function listProfils(string $tri = 'recent'): array
     {
         try {
+            $orderBy = $this->getOrderByClause($tri);
             $q = Config::getConnexion()->prepare(
                 "SELECT p.*, u.nom, u.prenom, u.email, u.role
                  FROM profil p
                  JOIN utilisateur u ON p.idUtilisateur = u.idUtilisateur
-                 ORDER BY p.idProfil DESC"
+                 ORDER BY $orderBy"
             );
             $q->execute();
-            return $q->fetchAll();
+            return $this->enrichRows($q->fetchAll());
         } catch (PDOException $e) { return []; }
     }
 
@@ -122,26 +127,93 @@ class ProfilC
     // ════════════════════════════════════════════════════════
     //  RECHERCHE (jointure utilisateur)
     // ════════════════════════════════════════════════════════
-    public function search(string $terme): array
+    public function search(string $terme, string $tri = 'recent'): array
     {
         try {
+            $orderBy = $this->getOrderByClause($tri);
             $q = Config::getConnexion()->prepare(
                 "SELECT p.*, u.nom, u.prenom, u.email, u.role
                  FROM profil p
                  JOIN utilisateur u ON p.idUtilisateur = u.idUtilisateur
-                 WHERE u.nom LIKE :t OR u.prenom LIKE :t
-                    OR p.ville LIKE :t OR p.pays LIKE :t
-                 ORDER BY p.idProfil DESC"
+                 WHERE u.email LIKE :t
+                 ORDER BY $orderBy"
             );
             $q->execute([':t' => '%' . $terme . '%']);
-            return $q->fetchAll();
+            return $this->enrichRows($q->fetchAll());
         } catch (PDOException $e) { return []; }
+    }
+
+    public function getCompletionStats(): array
+    {
+        $profils = $this->listProfils();
+        $count = count($profils);
+
+        if ($count === 0) {
+            return [
+                'average' => 0,
+                'max' => 0,
+                'min' => 0,
+                'topLabel' => 'Aucun profil',
+                'topCity' => 'Aucune ville',
+                'topLanguage' => 'Aucune langue',
+                'fullCount' => 0,
+            ];
+        }
+
+        $sum = 0;
+        $max = -1;
+        $min = 101;
+        $topLabel = 'Aucun profil';
+        $cityCounts = [];
+        $languageCounts = [];
+        $fullCount = 0;
+
+        foreach ($profils as $profil) {
+            $completion = (int) ($profil['completion'] ?? 0);
+            $sum += $completion;
+
+            if ($completion > $max) {
+                $max = $completion;
+                $topLabel = trim(($profil['prenom'] ?? '') . ' ' . ($profil['nom'] ?? ''));
+            }
+
+            if ($completion < $min) {
+                $min = $completion;
+            }
+
+            if ($completion >= 100) {
+                $fullCount++;
+            }
+
+            $ville = trim((string) ($profil['ville'] ?? ''));
+            if ($ville !== '') {
+                $cityCounts[$ville] = ($cityCounts[$ville] ?? 0) + 1;
+            }
+
+            $langue = trim((string) ($profil['langue'] ?? ''));
+            if ($langue !== '') {
+                $languageCounts[$langue] = ($languageCounts[$langue] ?? 0) + 1;
+            }
+        }
+
+        arsort($cityCounts);
+        arsort($languageCounts);
+
+        return [
+            'average' => (int) round($sum / $count),
+            'max' => max(0, $max),
+            'min' => min(100, $min),
+            'topLabel' => $topLabel !== '' ? $topLabel : 'Profil anonyme',
+            'topCity' => array_key_first($cityCounts) ?? 'Aucune ville',
+            'topLanguage' => array_key_first($languageCounts) ?? 'Aucune langue',
+            'fullCount' => $fullCount,
+        ];
     }
 
     // ════════════════════════════════════════════════════════
     //  VALIDATION PHP — jamais HTML5
     // ════════════════════════════════════════════════════════
-    public function valider(array $d): array
+    public function valider(array $d, int $excludeProfilId = 0): array
     {
         $err = [];
 
@@ -165,6 +237,8 @@ class ProfilC
         // idUtilisateur
         if (empty($d['idUtilisateur']) || !is_numeric($d['idUtilisateur']))
             $err['idUtilisateur'] = "Utilisateur associé invalide.";
+        elseif ($this->profilExistePourUtilisateur((int) $d['idUtilisateur'], $excludeProfilId))
+            $err['idUtilisateur'] = 'Cet utilisateur a deja un profil.';
 
         return $err;
     }
@@ -181,5 +255,74 @@ class ProfilC
             $row['langue'],
             $row['idUtilisateur']
         );
+    }
+
+    private function getOrderByClause(string $tri): string
+    {
+        return match ($tri) {
+            'nom_asc' => 'u.nom ASC, u.prenom ASC',
+            'nom_desc' => 'u.nom DESC, u.prenom DESC',
+            'ville_asc' => 'p.ville ASC, u.nom ASC, u.prenom ASC',
+            'ville_desc' => 'p.ville DESC, u.nom ASC, u.prenom ASC',
+            default => 'p.idProfil DESC',
+        };
+    }
+
+    private function profilExistePourUtilisateur(int $idUtilisateur, int $excludeProfilId = 0): bool
+    {
+        try {
+            $q = Config::getConnexion()->prepare(
+                "SELECT COUNT(*) FROM profil
+                 WHERE idUtilisateur = :idUtilisateur AND idProfil != :idProfil"
+            );
+            $q->execute([
+                ':idUtilisateur' => $idUtilisateur,
+                ':idProfil' => $excludeProfilId,
+            ]);
+            return (int) $q->fetchColumn() > 0;
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
+    private function enrichRows(array $rows): array
+    {
+        foreach ($rows as &$row) {
+            $row['completion'] = $this->calculateCompletion($row);
+            $row['completionLabel'] = $this->getCompletionLabel((int) $row['completion']);
+        }
+
+        return $rows;
+    }
+
+    private function calculateCompletion(array $row): int
+    {
+        $fields = [
+            'bio' => 25,
+            'photoProfil' => 20,
+            'ville' => 20,
+            'pays' => 20,
+            'langue' => 15,
+        ];
+
+        $score = 0;
+        foreach ($fields as $field => $weight) {
+            $value = trim((string) ($row[$field] ?? ''));
+            if ($value !== '' && $value !== 'default.png') {
+                $score += $weight;
+            }
+        }
+
+        return min(100, $score);
+    }
+
+    private function getCompletionLabel(int $completion): string
+    {
+        return match (true) {
+            $completion >= 100 => 'Profil complet',
+            $completion >= 70 => 'Tres complet',
+            $completion >= 40 => 'En progression',
+            default => 'A completer',
+        };
     }
 }

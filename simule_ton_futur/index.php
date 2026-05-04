@@ -7,6 +7,7 @@ $ctrlU     = new UtilisateurC();
 $ctrlP     = new ProfilC();
 $stats     = $ctrlU->getStats();
 $profils   = $ctrlP->listProfils();
+$profilStats = $ctrlP->getCompletionStats();
 $pageTitle = 'Accueil';
 
 $message = $_SESSION['message'] ?? null;
@@ -51,6 +52,47 @@ require_once __DIR__ . '/view/frontoffice/layouts/header.php';
       <div class="col-4">
         <div style="font-size:2.2rem;font-weight:800;color:#2a9d8f"><?= count($profils) ?></div>
         <div style="font-size:.82rem;color:#8899bb">Profils crees</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="container py-5">
+  <div class="row g-3">
+    <div class="col-md-6 col-xl-3">
+      <div class="stat-card red h-100">
+        <div>
+          <div class="val"><?= $profilStats['average'] ?>%</div>
+          <div class="lbl">Completion moyenne des profils</div>
+        </div>
+        <i class="fas fa-chart-line"></i>
+      </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+      <div class="stat-card blue h-100">
+        <div>
+          <div class="val"><?= $profilStats['fullCount'] ?></div>
+          <div class="lbl">Profils complets</div>
+        </div>
+        <i class="fas fa-award"></i>
+      </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+      <div class="stat-card orange h-100">
+        <div>
+          <div class="val" style="font-size:1.25rem"><?= htmlspecialchars($profilStats['topCity']) ?></div>
+          <div class="lbl">Ville la plus representee</div>
+        </div>
+        <i class="fas fa-city"></i>
+      </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+      <div class="stat-card green h-100">
+        <div>
+          <div class="val" style="font-size:1.15rem"><?= htmlspecialchars($profilStats['topLabel']) ?></div>
+          <div class="lbl">Profil le plus complet</div>
+        </div>
+        <i class="fas fa-star"></i>
       </div>
     </div>
   </div>
@@ -105,10 +147,20 @@ require_once __DIR__ . '/view/frontoffice/layouts/header.php';
   <?php else: ?>
     <div class="row g-3">
       <?php foreach ($profils as $p): ?>
+      <?php
+        $photoName = trim((string) ($p['photoProfil'] ?? ''));
+        $photoUrl = ($photoName !== '' && $photoName !== 'default.png')
+          ? $baseUrl . '/view/assets/img/profiles/' . rawurlencode($photoName)
+          : '';
+      ?>
       <div class="col-md-6 col-lg-4">
         <div class="card p-4">
           <div class="d-flex align-items-center gap-3 mb-2">
-            <div class="avatar"><?= strtoupper(substr($p['prenom'],0,1).substr($p['nom'],0,1)) ?></div>
+            <?php if ($photoUrl !== ''): ?>
+              <img src="<?= htmlspecialchars($photoUrl) ?>" alt="Photo de <?= htmlspecialchars($p['prenom'] . ' ' . $p['nom']) ?>" class="avatar avatar-photo">
+            <?php else: ?>
+              <div class="avatar"><?= strtoupper(substr($p['prenom'],0,1).substr($p['nom'],0,1)) ?></div>
+            <?php endif; ?>
             <div>
               <div class="fw-bold" style="font-size:.88rem"><?= htmlspecialchars($p['prenom'].' '.$p['nom']) ?></div>
               <div style="font-size:.75rem;color:#8899bb"><?= htmlspecialchars($p['email']) ?></div>
@@ -128,6 +180,15 @@ require_once __DIR__ . '/view/frontoffice/layouts/header.php';
             <?php if ($p['langue']): ?>
               <span style="font-size:.75rem;color:#8899bb"><i class="fas fa-language me-1" style="color:#2a9d8f"></i><?= htmlspecialchars($p['langue']) ?></span>
             <?php endif; ?>
+          </div>
+          <div class="mt-3">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span style="font-size:.76rem;color:#8899bb"><?= htmlspecialchars($p['completionLabel']) ?></span>
+              <span style="font-size:.76rem;font-weight:700;color:#1d2b4f"><?= (int) $p['completion'] ?>%</span>
+            </div>
+            <div class="completion-track">
+              <div class="completion-fill" style="width:<?= (int) $p['completion'] ?>%"></div>
+            </div>
           </div>
         </div>
       </div>

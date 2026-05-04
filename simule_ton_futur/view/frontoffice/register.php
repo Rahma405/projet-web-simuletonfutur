@@ -16,6 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'email' => trim($_POST['email'] ?? ''),
         'motDePasse' => $_POST['motDePasse'] ?? '',
         'role' => 'user',
+        'statut' => 'actif',
         'bio' => trim($_POST['bio'] ?? ''),
         'ville' => trim($_POST['ville'] ?? ''),
         'pays' => trim($_POST['pays'] ?? ''),
@@ -28,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $erreurs = array_merge($erreursU, $erreursP);
 
     if (empty($erreurs)) {
-        $utilisateur = new Utilisateur(null, $old['nom'], $old['prenom'], $old['email'], $old['motDePasse'], 'user');
+        $utilisateur = new Utilisateur(null, $old['nom'], $old['prenom'], $old['email'], $old['motDePasse'], 'user', 'actif');
         $newId = $ctrlU->createUtilisateur($utilisateur);
 
         if ($newId !== null) {
