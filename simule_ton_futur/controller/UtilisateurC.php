@@ -117,6 +117,101 @@ class UtilisateurC
         }
     }
 
+    public function saveFaceDescriptor(int $idUtilisateur, array $descriptor): bool
+    {
+        if (count($descriptor) !== 128) {
+            return false;
+        }
+
+        $normalized = array_map(static fn($value) => (float) $value, $descriptor);
+        $json = json_encode($normalized);
+        if ($json === false) {
+            return false;
+        }
+
+        try {
+            $q = Config::getConnexion()->prepare(
+                "INSERT INTO face_descriptors (idUtilisateur, descriptorJson)
+                 VALUES (:idUtilisateur, :descriptorJson)
+                 ON DUPLICATE KEY UPDATE descriptorJson = VALUES(descriptorJson)"
+            );
+            $q->execute([
+                ':idUtilisateur' => $idUtilisateur,
+                ':descriptorJson' => $json,
+            ]);
+            return true;
+        } catch (Throwable $e) {
+            error_log('saveFaceDescriptor: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function hasFaceDescriptor(int $idUtilisateur): bool
+    {
+        try {
+            $q = Config::getConnexion()->prepare(
+                "SELECT COUNT(*) FROM face_descriptors WHERE idUtilisateur = :idUtilisateur"
+            );
+            $q->execute([':idUtilisateur' => $idUtilisateur]);
+            return (int) $q->fetchColumn() > 0;
+        } catch (Throwable $e) {
+            return false;
+        }
+    }
+
+    public function deleteFaceDescriptor(int $idUtilisateur): bool
+    {
+        try {
+            $q = Config::getConnexion()->prepare(
+                "DELETE FROM face_descriptors WHERE idUtilisateur = :idUtilisateur"
+            );
+            $q->execute([':idUtilisateur' => $idUtilisateur]);
+            return true;
+        } catch (Throwable $e) {
+            error_log('deleteFaceDescriptor: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function loginWithFaceDescriptor(array $descriptor, float $threshold = 0.5): ?Utilisateur
+    {
+        if (count($descriptor) !== 128) {
+            return null;
+        }
+
+        $probe = array_map(static fn($value) => (float) $value, $descriptor);
+
+        try {
+            $q = Config::getConnexion()->query("SELECT * FROM face_descriptors");
+            $rows = $q->fetchAll();
+
+            $bestDistance = INF;
+            $bestUserId = null;
+
+            foreach ($rows as $row) {
+                $stored = json_decode((string) $row['descriptorJson'], true);
+                if (!is_array($stored) || count($stored) !== 128) {
+                    continue;
+                }
+
+                $distance = $this->euclideanDistance($probe, array_map(static fn($value) => (float) $value, $stored));
+                if ($distance < $bestDistance) {
+                    $bestDistance = $distance;
+                    $bestUserId = (int) $row['idUtilisateur'];
+                }
+            }
+
+            if ($bestUserId === null || $bestDistance >= $threshold) {
+                return null;
+            }
+
+            return $this->getById($bestUserId);
+        } catch (Throwable $e) {
+            error_log('loginWithFaceDescriptor: ' . $e->getMessage());
+            return null;
+        }
+    }
+
     public function createPasswordResetToken(string $email): ?string
     {
         $user = $this->getByEmail($email);
@@ -537,5 +632,18 @@ class UtilisateurC
         } catch (Throwable $e) {
             error_log('markQrLoginExpired: ' . $e->getMessage());
         }
+    }
+
+    private function euclideanDistance(array $a, array $b): float
+    {
+        $sum = 0.0;
+        $length = min(count($a), count($b));
+
+        for ($i = 0; $i < $length; $i++) {
+            $diff = (float) $a[$i] - (float) $b[$i];
+            $sum += $diff * $diff;
+        }
+
+        return sqrt($sum);
     }
 }

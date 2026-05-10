@@ -7,15 +7,24 @@ $token = trim($_GET['token'] ?? $_POST['token'] ?? '');
 $user = $token !== '' ? $ctrl->getUtilisateurByQrToken($token) : null;
 $status = $token !== '' ? $ctrl->getQrLoginStatus($token) : 'invalid';
 $message = null;
+$error = null;
 $pageTitle = 'Validation QR';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $token !== '' && $status === 'pending') {
-    if ($ctrl->approveQrLoginToken($token)) {
+    $confirmEmail = trim($_POST['confirm_email'] ?? '');
+
+    if ($user === null) {
+        $error = 'Ce QR code est invalide.';
+    } elseif ($confirmEmail === '') {
+        $error = "Entrez l'email du compte pour continuer.";
+    } elseif (strcasecmp($confirmEmail, (string) $user->getEmail()) !== 0) {
+        $error = "Cet email ne correspond pas au compte lie a ce QR code.";
+    } elseif ($ctrl->approveQrLoginToken($token)) {
         $status = 'approved';
         $message = 'Connexion validee. Retournez sur votre ordinateur.';
     } else {
         $status = $ctrl->getQrLoginStatus($token);
-        $message = 'Impossible de valider cette connexion.';
+        $error = 'Impossible de valider cette connexion.';
     }
 }
 ?>
@@ -109,6 +118,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $token !== '' && $status === 'pendi
     font-weight: 700;
     cursor: pointer;
   }
+  .qr-phone-input {
+    width: 100%;
+    border: 1px solid #d9e3f5;
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 16px;
+    margin-bottom: 14px;
+    box-sizing: border-box;
+  }
+  .qr-phone-help {
+    font-size: 14px;
+    color: #5f6f8d;
+    margin-bottom: 14px;
+  }
 </style>
 </head>
 <body>
@@ -121,6 +144,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $token !== '' && $status === 'pendi
       <?php if ($message !== null): ?>
         <div class="qr-phone-alert qr-phone-success"><?= htmlspecialchars($message) ?></div>
       <?php endif; ?>
+      <?php if ($error !== null): ?>
+        <div class="qr-phone-alert qr-phone-danger"><?= htmlspecialchars($error) ?></div>
+      <?php endif; ?>
 
       <?php if ($user && $status === 'pending'): ?>
         <div class="qr-phone-user">
@@ -129,6 +155,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $token !== '' && $status === 'pendi
         </div>
         <form method="POST">
           <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>">
+          <div class="qr-phone-help">
+            Pour securiser la connexion, entrez le meme email que celui du compte scanne.
+          </div>
+          <input
+            type="text"
+            name="confirm_email"
+            class="qr-phone-input"
+            value="<?= htmlspecialchars($_POST['confirm_email'] ?? '') ?>"
+            placeholder="Entrez le meme email">
           <button type="submit" class="qr-phone-btn">Valider la connexion</button>
         </form>
       <?php elseif ($user && $status === 'approved'): ?>

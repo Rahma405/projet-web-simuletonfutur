@@ -31,6 +31,7 @@ if (!$u) {
 
 $sessionUser = $_SESSION['user'];
 $estAdmin = ($sessionUser['role'] ?? '') === 'admin';
+$faceIdEnabled = $ctrl->hasFaceDescriptor((int) $u->getIdUtilisateur());
 if (!$estAdmin && (int) $sessionUser['id'] !== (int) $u->getIdUtilisateur()) {
     $_SESSION['message'] = ['type' => 'danger', 'texte' => 'Vous ne pouvez modifier que votre propre compte.'];
     header('Location: ../../index.php');
@@ -125,10 +126,22 @@ require_once __DIR__ . '/layouts/header.php';
               </div>
             </div>
 
+            <?php if ((int) $sessionUser['id'] === (int) $u->getIdUtilisateur()): ?>
+              <div class="alert <?= $faceIdEnabled ? 'alert-success' : 'alert-warning' ?> mb-4">
+                <i class="fas <?= $faceIdEnabled ? 'fa-circle-check' : 'fa-triangle-exclamation' ?> me-2"></i>
+                <?= $faceIdEnabled ? 'Face ID active pour ce compte.' : 'Face ID non active pour ce compte.' ?>
+              </div>
+            <?php endif; ?>
+
             <div class="d-flex gap-2">
               <button type="submit" class="btn-hero" style="border-radius:10px;padding:10px 22px;">
                 <i class="fas fa-save me-1"></i>Enregistrer
               </button>
+              <?php if ((int) $sessionUser['id'] === (int) $u->getIdUtilisateur()): ?>
+                <a href="face_register.php" class="btn btn-outline-primary" style="border-radius:10px;padding:10px 22px;">
+                  <i class="fas fa-camera me-1"></i>Activer Face ID
+                </a>
+              <?php endif; ?>
               <a href="list_utilisateurs.php" class="btn btn-outline-secondary" style="border-radius:10px;padding:10px 22px;">Annuler</a>
             </div>
           </form>

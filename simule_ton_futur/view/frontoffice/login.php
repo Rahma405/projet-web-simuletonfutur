@@ -1,15 +1,15 @@
 <?php
 session_start();
 require_once __DIR__ . '/../../controller/UtilisateurC.php';
+require_once __DIR__ . '/../../controller/ProfilC.php';
 
 $ctrl = new UtilisateurC();
-$pageTitle = 'Connexion';
+$profilCtrl = new ProfilC();
+$pageTitle = stf_t('login');
 $erreurs = [];
 $captchaNotice = null;
 $resetNotice = null;
 $resetLinkPreview = null;
-$qrNotice = null;
-$qrError = null;
 $old = ['email' => ''];
 $scriptDir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? ''));
 $baseUrl = preg_replace('#/view(?:/.*)?$#', '', $scriptDir);
@@ -112,11 +112,6 @@ if (isset($_SESSION['login_reset_link_preview'])) {
     unset($_SESSION['login_reset_link_preview']);
 }
 
-if (isset($_SESSION['qr_login_notice'])) {
-    $qrNotice = (string) $_SESSION['qr_login_notice'];
-    unset($_SESSION['qr_login_notice']);
-}
-
 if (isset($_SESSION['user'])) {
     header('Location: ../../index.php');
     exit;
@@ -135,28 +130,6 @@ if ($captchaRequired && !$isValidCaptchaData($_SESSION['login_puzzle'] ?? null))
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['generate_qr_login'])) {
-        $qrEmail = trim($_POST['qr_email'] ?? '');
-
-        if ($qrEmail === '') {
-            $qrError = "L'email est obligatoire pour generer le QR code.";
-        } elseif (!filter_var($qrEmail, FILTER_VALIDATE_EMAIL)) {
-            $qrError = "L'adresse email n'est pas valide.";
-        } else {
-            $token = $ctrl->createQrLoginToken($qrEmail);
-
-            if ($token === null) {
-                $qrError = "Aucun compte n'est associe a cet email.";
-            } else {
-                $_SESSION['qr_login_token'] = $token;
-                $_SESSION['qr_login_email'] = $qrEmail;
-                $_SESSION['qr_login_notice'] = "QR code genere. Scanne-le avec ton telephone puis valide la connexion.";
-                header('Location: login.php');
-                exit;
-            }
-        }
-    }
-
     if (isset($_POST['reset_choice'])) {
         $choice = $_POST['reset_choice'];
         $emailForReset = (string) ($_SESSION['login_reset_choice_email'] ?? '');
@@ -262,6 +235,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $utilisateur = $ctrl->login($old['email'], $motDePasse);
 
         if ($utilisateur) {
+            $profilLangue = $profilCtrl->getByIdUtilisateur((int) $utilisateur->getIdUtilisateur());
             $_SESSION['user'] = [
                 'id' => $utilisateur->getIdUtilisateur(),
                 'nom' => $utilisateur->getNom(),
@@ -270,6 +244,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'role' => $utilisateur->getRole(),
                 'statut' => $utilisateur->getStatut(),
             ];
+            $_SESSION['site_lang'] = stf_language_code_from_value($profilLangue?->getLangue());
             $_SESSION['login_attempts'] = 0;
             unset($_SESSION['login_puzzle']);
             $_SESSION['message'] = [
@@ -300,47 +275,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $captchaData = null;
 $captchaStage = 0;
 $submitLabel = 'Se connecter';
-$qrLoginToken = (string) ($_SESSION['qr_login_token'] ?? '');
-$qrLoginEmail = (string) ($_SESSION['qr_login_email'] ?? '');
-$qrLoginUrl = '';
-$qrLoginStatus = '';
-
-if ($qrLoginToken !== '') {
-    $qrLoginStatus = $ctrl->getQrLoginStatus($qrLoginToken);
-
-    if ($qrLoginStatus === 'approved') {
-        $utilisateur = $ctrl->consumeQrLoginToken($qrLoginToken);
-
-        if ($utilisateur) {
-            $_SESSION['user'] = [
-                'id' => $utilisateur->getIdUtilisateur(),
-                'nom' => $utilisateur->getNom(),
-                'prenom' => $utilisateur->getPrenom(),
-                'email' => $utilisateur->getEmail(),
-                'role' => $utilisateur->getRole(),
-                'statut' => $utilisateur->getStatut(),
-            ];
-            $_SESSION['message'] = [
-                'type' => 'success',
-                'texte' => 'Connexion QR reussie. Bienvenue ' . $utilisateur->getPrenom() . ' !',
-            ];
-            unset($_SESSION['qr_login_token'], $_SESSION['qr_login_email']);
-
-            header('Location: ' . ($utilisateur->getRole() === 'admin'
-                ? '../backoffice/list_utilisateurs.php'
-                : '../../index.php'));
-            exit;
-        }
-    }
-
-    if ($qrLoginStatus === 'invalid' || $qrLoginStatus === 'used' || $qrLoginStatus === 'expired') {
-        unset($_SESSION['qr_login_token'], $_SESSION['qr_login_email']);
-        $qrLoginToken = '';
-        $qrLoginEmail = '';
-    } else {
-        $qrLoginUrl = Config::getPublicBaseUrl() . '/view/frontoffice/qr_login_confirm.php?token=' . urlencode($qrLoginToken);
-    }
-}
 
 if ($captchaRequired) {
     if (!$isValidCaptchaData($_SESSION['login_puzzle'] ?? null)) {
@@ -357,13 +291,13 @@ require_once __DIR__ . '/layouts/header.php';
 
 <section class="login-page">
   <div class="login-heading">
-    <h1>Se connecter</h1>
-    <p>Accedez a votre espace Simule Ton Futur</p>
+    <h1><?= htmlspecialchars(stf_t('login_title')) ?></h1>
+    <p><?= htmlspecialchars(stf_t('login_subtitle')) ?></p>
   </div>
 
   <div class="login-card">
-    <h2>Connexion</h2>
-    <p class="login-subtitle">Entrez vos identifiants ci-dessous</p>
+    <h2><?= htmlspecialchars(stf_t('login')) ?></h2>
+    <p class="login-subtitle"><?= htmlspecialchars(stf_t('login_intro')) ?></p>
 
     <?php if (isset($erreurs['global'])): ?>
       <div class="alert alert-danger mb-4"><?= htmlspecialchars($erreurs['global']) ?></div>
@@ -387,10 +321,6 @@ require_once __DIR__ . '/layouts/header.php';
       </div>
     <?php endif; ?>
 
-    <?php if ($qrNotice !== null): ?>
-      <div class="alert alert-success mb-4"><?= htmlspecialchars($qrNotice) ?></div>
-    <?php endif; ?>
-
     <?php if (isset($_SESSION['login_reset_choice_email'])): ?>
       <div class="reset-choice-card mb-4">
         <h3>Changer le mot de passe ?</h3>
@@ -411,49 +341,10 @@ require_once __DIR__ . '/layouts/header.php';
     <?php endif; ?>
 
     <?php if (!isset($_SESSION['login_reset_choice_email'])): ?>
-    <div class="qr-login-card mb-4">
-      <h3>Connexion par QR code</h3>
-      <p>Entrez votre email, genere un QR code puis scanne-le avec votre telephone.</p>
-      <form method="POST" class="qr-login-form">
-        <input
-          type="text"
-          name="qr_email"
-          class="form-control login-input <?= $qrError !== null ? 'is-invalid' : '' ?>"
-          value="<?= htmlspecialchars($qrLoginEmail !== '' ? $qrLoginEmail : ($old['email'] ?? '')) ?>"
-          placeholder="exemple@email.com">
-        <button type="submit" name="generate_qr_login" value="1" class="btn-login btn-login-small">
-          Generer le QR
-        </button>
-      </form>
-      <?php if ($qrError !== null): ?>
-        <div class="invalid-feedback d-block mt-2"><?= htmlspecialchars($qrError) ?></div>
-      <?php endif; ?>
-
-      <?php if ($qrLoginUrl !== ''): ?>
-        <div class="qr-login-preview" data-qr-login data-qr-token="<?= htmlspecialchars($qrLoginToken) ?>" data-qr-mode="<?= htmlspecialchars($qrLoginStatus) ?>">
-          <div class="qr-login-box">
-            <img
-              src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=<?= urlencode($qrLoginUrl) ?>"
-              alt="QR code de connexion"
-              class="qr-login-image">
-          </div>
-          <div class="qr-login-meta">
-            <strong>Scannez puis validez</strong>
-            <p><?= htmlspecialchars($qrLoginEmail) ?></p>
-            <div class="qr-login-status" data-qr-status>
-              <?= $qrLoginStatus === 'approved' ? 'Validation recue. Connexion en cours...' : 'En attente de validation sur le telephone' ?>
-            </div>
-            <a href="<?= htmlspecialchars($qrLoginUrl) ?>" class="qr-login-link" target="_blank">Ouvrir le lien de validation</a>
-            <button type="button" class="btn-reset-choice-no mt-3" onclick="window.location.reload()">J'ai valide sur mon telephone</button>
-          </div>
-        </div>
-      <?php endif; ?>
-    </div>
-
     <form method="POST" novalidate>
       <?php if (!$captchaRequired): ?>
         <div class="mb-4">
-          <label class="form-label">Email <span>*</span></label>
+          <label class="form-label"><?= htmlspecialchars(stf_t('email')) ?> <span>*</span></label>
           <input
             type="text"
             name="email"
@@ -466,7 +357,7 @@ require_once __DIR__ . '/layouts/header.php';
         </div>
 
         <div class="mb-4">
-          <label class="form-label">Mot de passe <span>*</span></label>
+          <label class="form-label"><?= htmlspecialchars(stf_t('password')) ?> <span>*</span></label>
           <div class="password-field">
             <input
               type="password"
@@ -575,11 +466,14 @@ require_once __DIR__ . '/layouts/header.php';
         <button type="submit" class="btn-login">
           <i class="fas fa-lock-open me-2"></i><?= htmlspecialchars($submitLabel) ?>
         </button>
+          <a href="<?= $baseUrl ?>/view/frontoffice/face_login.php" class="btn btn-outline-primary ms-2" style="border-radius:14px;padding:14px 18px;font-weight:700;">
+          <i class="fas fa-camera me-1"></i><?= htmlspecialchars(stf_t('face_login')) ?>
+        </a>
       <?php endif; ?>
 
       <div class="login-register">
-        Pas encore de compte ?
-        <a href="<?= $baseUrl ?>/view/frontoffice/register.php">Creer un compte</a>
+        <?= htmlspecialchars(stf_t('no_account')) ?>
+        <a href="<?= $baseUrl ?>/view/frontoffice/register.php"><?= htmlspecialchars(stf_t('create_account')) ?></a>
       </div>
     </form>
     <?php endif; ?>

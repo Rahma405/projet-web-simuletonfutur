@@ -15,7 +15,7 @@ if (($_SESSION['user']['statut'] ?? 'actif') === 'en_attente') {
 }
 
 $ctrl = new ProfilC();
-$pageTitle = 'Ajouter mon profil';
+$pageTitle = stf_t('complete_profile');
 $erreurs = [];
 $old = [];
 $userId = (int) $_SESSION['user']['id'];
@@ -92,6 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         );
 
         if ($ctrl->addProfil($profil)) {
+            $_SESSION['site_lang'] = stf_language_code_from_value($old['langue'] ?? '');
             $_SESSION['message'] = ['type' => 'success', 'texte' => 'Votre profil a ete ajoute avec succes.'];
             header('Location: list_profils.php');
             exit;
@@ -108,7 +109,7 @@ require_once __DIR__ . '/layouts/header.php';
     <div class="col-lg-7">
       <div class="card">
         <div style="background:linear-gradient(135deg,#1d2b4f,#2a3f6f);color:#fff;padding:16px 24px;border-radius:16px 16px 0 0;">
-          <h5 class="mb-0 fw-bold"><i class="fas fa-id-card me-2" style="color:#e63946"></i>Completer mon profil</h5>
+          <h5 class="mb-0 fw-bold"><i class="fas fa-id-card me-2" style="color:#e63946"></i><?= htmlspecialchars(stf_t('complete_profile')) ?></h5>
         </div>
         <div class="card-body p-4">
           <?php if (isset($erreurs['global'])): ?>
@@ -117,13 +118,13 @@ require_once __DIR__ . '/layouts/header.php';
 
           <form method="POST" enctype="multipart/form-data" novalidate>
             <div class="mb-3">
-              <label class="form-label">Bio</label>
+              <label class="form-label"><?= htmlspecialchars(stf_t('bio')) ?></label>
               <textarea name="bio" rows="4" class="form-control <?= isset($erreurs['bio']) ? 'is-invalid' : '' ?>" placeholder="Parlez de vous en quelques lignes"><?= htmlspecialchars($old['bio'] ?? '') ?></textarea>
               <?php if (isset($erreurs['bio'])): ?><div class="invalid-feedback"><?= htmlspecialchars($erreurs['bio']) ?></div><?php endif; ?>
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Photo de profil</label>
+              <label class="form-label"><?= htmlspecialchars(stf_t('profile_photo')) ?></label>
               <input type="file" name="photoProfilFile" accept=".jpg,.jpeg,.png,.webp,.gif" class="form-control <?= isset($erreurs['photoProfil']) ? 'is-invalid' : '' ?>">
               <?php if (!empty($old['photoProfil']) && ($old['photoProfil'] ?? '') !== 'default.png'): ?>
                 <small class="text-muted d-block mt-2">Image choisie : <?= htmlspecialchars($old['photoProfil']) ?></small>
@@ -133,19 +134,19 @@ require_once __DIR__ . '/layouts/header.php';
 
             <div class="row g-3 mb-4">
               <div class="col-md-4">
-                <label class="form-label">Ville</label>
+                <label class="form-label"><?= htmlspecialchars(stf_t('city')) ?></label>
                 <input type="text" name="ville" class="form-control <?= isset($erreurs['ville']) ? 'is-invalid' : '' ?>" value="<?= htmlspecialchars($old['ville'] ?? '') ?>">
                 <?php if (isset($erreurs['ville'])): ?><div class="invalid-feedback"><?= htmlspecialchars($erreurs['ville']) ?></div><?php endif; ?>
               </div>
               <div class="col-md-4">
-                <label class="form-label">Pays</label>
+                <label class="form-label"><?= htmlspecialchars(stf_t('country')) ?></label>
                 <input type="text" name="pays" class="form-control <?= isset($erreurs['pays']) ? 'is-invalid' : '' ?>" value="<?= htmlspecialchars($old['pays'] ?? '') ?>">
                 <?php if (isset($erreurs['pays'])): ?><div class="invalid-feedback"><?= htmlspecialchars($erreurs['pays']) ?></div><?php endif; ?>
               </div>
               <div class="col-md-4">
-                <label class="form-label">Langue</label>
+                <label class="form-label"><?= htmlspecialchars(stf_t('language')) ?></label>
                 <select name="langue" class="form-select <?= isset($erreurs['langue']) ? 'is-invalid' : '' ?>">
-                  <option value="">-- Choisir --</option>
+                  <option value=""><?= htmlspecialchars(stf_t('choose')) ?></option>
                   <?php foreach (['Français', 'Arabe', 'Anglais', 'Espagnol', 'Allemand', 'Autre'] as $langue): ?>
                     <option value="<?= $langue ?>" <?= ($old['langue'] ?? '') === $langue ? 'selected' : '' ?>><?= $langue ?></option>
                   <?php endforeach; ?>
@@ -156,9 +157,9 @@ require_once __DIR__ . '/layouts/header.php';
 
             <div class="d-flex gap-2">
               <button type="submit" class="btn-hero" style="border-radius:10px;padding:10px 22px;">
-                <i class="fas fa-save me-1"></i>Enregistrer
+                <i class="fas fa-save me-1"></i><?= htmlspecialchars(stf_t('save')) ?>
               </button>
-              <a href="list_profils.php" class="btn btn-outline-secondary" style="border-radius:10px;padding:10px 22px;">Annuler</a>
+              <a href="list_profils.php" class="btn btn-outline-secondary" style="border-radius:10px;padding:10px 22px;"><?= htmlspecialchars(stf_t('cancel')) ?></a>
             </div>
           </form>
         </div>

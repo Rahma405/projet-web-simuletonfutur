@@ -8,7 +8,7 @@ $ctrlP     = new ProfilC();
 $stats     = $ctrlU->getStats();
 $profils   = $ctrlP->listProfils();
 $profilStats = $ctrlP->getCompletionStats();
-$pageTitle = 'Accueil';
+$pageTitle = stf_t('home');
 
 $message = $_SESSION['message'] ?? null;
 if (isset($_SESSION['message'])) unset($_SESSION['message']);
@@ -20,18 +20,18 @@ require_once __DIR__ . '/view/frontoffice/layouts/header.php';
 <section style="background:linear-gradient(135deg,#1d2b4f 0%,#0f1a36 60%,#1d2b4f 100%);padding:80px 0 60px;">
   <div class="container text-center text-white">
     <div style="display:inline-block;background:rgba(230,57,70,.15);border:1px solid rgba(230,57,70,.3);border-radius:30px;padding:5px 18px;font-size:.78rem;font-weight:600;color:#e63946;margin-bottom:18px;">
-      Plateforme Interactive
+      <?= htmlspecialchars(stf_t('hero_badge')) ?>
     </div>
     <h1 style="font-size:2.8rem;font-weight:800;line-height:1.2;margin-bottom:14px;">
-      Simule <span style="color:#e63946;">Ton Futur</span> Professionnel
+      <?= htmlspecialchars(stf_t('hero_title_before')) ?> <span style="color:#e63946;"><?= htmlspecialchars(stf_t('hero_title_highlight')) ?></span> <?= htmlspecialchars(stf_t('hero_title_after')) ?>
     </h1>
     <p style="font-size:1rem;color:#8899bb;max-width:560px;margin:0 auto 32px;">
-      Decouvre le monde du travail moderne en faisant des choix reels.
-      Gagne de l'argent, de l'experience et de la reputation.
+      <?= htmlspecialchars(stf_t('hero_text_1')) ?>
+      <?= htmlspecialchars(stf_t('hero_text_2')) ?>
     </p>
     <div class="d-flex gap-3 justify-content-center flex-wrap">
       <a href="view/frontoffice/register.php" class="btn-hero">
-        <i class="fas fa-rocket me-2"></i>Commencer
+        <i class="fas fa-rocket me-2"></i><?= htmlspecialchars(stf_t('start')) ?>
       </a>
     </div>
   </div>
@@ -43,15 +43,15 @@ require_once __DIR__ . '/view/frontoffice/layouts/header.php';
     <div class="row g-3 text-center text-white">
       <div class="col-4">
         <div style="font-size:2.2rem;font-weight:800;color:#e63946"><?= $stats['total'] ?></div>
-        <div style="font-size:.82rem;color:#8899bb">Utilisateurs inscrits</div>
+        <div style="font-size:.82rem;color:#8899bb"><?= htmlspecialchars(stf_t('users_registered')) ?></div>
       </div>
       <div class="col-4">
         <div style="font-size:2.2rem;font-weight:800;color:#f4a261"><?= $stats['admins'] ?></div>
-        <div style="font-size:.82rem;color:#8899bb">Administrateurs</div>
+        <div style="font-size:.82rem;color:#8899bb"><?= htmlspecialchars(stf_t('administrators')) ?></div>
       </div>
       <div class="col-4">
         <div style="font-size:2.2rem;font-weight:800;color:#2a9d8f"><?= count($profils) ?></div>
-        <div style="font-size:.82rem;color:#8899bb">Profils crees</div>
+        <div style="font-size:.82rem;color:#8899bb"><?= htmlspecialchars(stf_t('profiles_created')) ?></div>
       </div>
     </div>
   </div>
@@ -63,7 +63,7 @@ require_once __DIR__ . '/view/frontoffice/layouts/header.php';
       <div class="stat-card red h-100">
         <div>
           <div class="val"><?= $profilStats['average'] ?>%</div>
-          <div class="lbl">Completion moyenne des profils</div>
+          <div class="lbl"><?= htmlspecialchars(stf_t('avg_completion')) ?></div>
         </div>
         <i class="fas fa-chart-line"></i>
       </div>
@@ -72,7 +72,7 @@ require_once __DIR__ . '/view/frontoffice/layouts/header.php';
       <div class="stat-card blue h-100">
         <div>
           <div class="val"><?= $profilStats['fullCount'] ?></div>
-          <div class="lbl">Profils complets</div>
+          <div class="lbl"><?= htmlspecialchars(stf_t('full_profiles')) ?></div>
         </div>
         <i class="fas fa-award"></i>
       </div>
@@ -81,7 +81,7 @@ require_once __DIR__ . '/view/frontoffice/layouts/header.php';
       <div class="stat-card orange h-100">
         <div>
           <div class="val" style="font-size:1.25rem"><?= htmlspecialchars($profilStats['topCity']) ?></div>
-          <div class="lbl">Ville la plus representee</div>
+          <div class="lbl"><?= htmlspecialchars(stf_t('top_city')) ?></div>
         </div>
         <i class="fas fa-city"></i>
       </div>
@@ -90,7 +90,7 @@ require_once __DIR__ . '/view/frontoffice/layouts/header.php';
       <div class="stat-card green h-100">
         <div>
           <div class="val" style="font-size:1.15rem"><?= htmlspecialchars($profilStats['topLabel']) ?></div>
-          <div class="lbl">Profil le plus complet</div>
+          <div class="lbl"><?= htmlspecialchars(stf_t('best_profile')) ?></div>
         </div>
         <i class="fas fa-star"></i>
       </div>
@@ -100,8 +100,8 @@ require_once __DIR__ . '/view/frontoffice/layouts/header.php';
 
 <!-- PARCOURS -->
 <section class="container py-5">
-  <h2 class="text-center fw-bold mb-2" style="color:#1d2b4f">Choisis ton parcours</h2>
-  <p class="text-center text-muted mb-4" style="font-size:.88rem">Chaque choix donne un resultat different</p>
+  <h2 class="text-center fw-bold mb-2" style="color:#1d2b4f"><?= htmlspecialchars(stf_t('choose_path')) ?></h2>
+  <p class="text-center text-muted mb-4" style="font-size:.88rem"><?= htmlspecialchars(stf_t('path_subtitle')) ?></p>
   <div class="row g-3 justify-content-center">
     <?php foreach([
       ['Freelance','Travaille a ton rythme, gere tes clients.','#e63946'],
@@ -131,18 +131,18 @@ require_once __DIR__ . '/view/frontoffice/layouts/header.php';
 
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-      <h3 class="fw-bold mb-1" style="color:#1d2b4f">Communaute</h3>
+      <h3 class="fw-bold mb-1" style="color:#1d2b4f"><?= htmlspecialchars(stf_t('community')) ?></h3>
       <p class="text-muted mb-0" style="font-size:.83rem"><?= count($profils) ?> profil(s) cree(s)</p>
     </div>
     <a href="view/frontoffice/register.php" class="btn-hero" style="padding:9px 20px;font-size:.85rem;">
-      <i class="fas fa-plus me-1"></i>Rejoindre
+      <i class="fas fa-plus me-1"></i><?= htmlspecialchars(stf_t('join')) ?>
     </a>
   </div>
 
   <?php if (empty($profils)): ?>
     <div class="card text-center p-5">
       <i class="fas fa-users fa-3x mb-3 text-muted"></i>
-      <p class="text-muted">Aucun profil pour le moment.</p>
+      <p class="text-muted"><?= htmlspecialchars(stf_t('no_profiles')) ?></p>
     </div>
   <?php else: ?>
     <div class="row g-3">
