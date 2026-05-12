@@ -1,12 +1,12 @@
 <?php
 session_start();
-require_once __DIR__ . '/controller/UtilisateurC.php';
-require_once __DIR__ . '/controller/ProfilC.php';
+require_once __DIR__ . '/controller/OffreC.php';
+require_once __DIR__ . '/controller/CandidatureC.php';
 
-$ctrlU     = new UtilisateurC();
-$ctrlP     = new ProfilC();
-$stats     = $ctrlU->getStats();
-$profils   = $ctrlP->listProfils();
+$ctrlO     = new OffreC();
+$ctrlC     = new CandidatureC();
+$offres    = $ctrlO->listOffres();
+$candidatures = $ctrlC->listAll();
 $pageTitle = 'Accueil';
 
 $message = $_SESSION['message'] ?? null;
@@ -29,7 +29,7 @@ require_once __DIR__ . '/view/frontoffice/layouts/header.php';
       Gagne de l'argent, de l'experience et de la reputation.
     </p>
     <div class="d-flex gap-3 justify-content-center flex-wrap">
-      <a href="view/frontoffice/register.php" class="btn-hero">
+      <a href="view/frontoffice/login.php" class="btn-hero">
         <i class="fas fa-rocket me-2"></i>Commencer
       </a>
     </div>
@@ -41,16 +41,16 @@ require_once __DIR__ . '/view/frontoffice/layouts/header.php';
   <div class="container">
     <div class="row g-3 text-center text-white">
       <div class="col-4">
-        <div style="font-size:2.2rem;font-weight:800;color:#e63946"><?= $stats['total'] ?></div>
-        <div style="font-size:.82rem;color:#8899bb">Utilisateurs inscrits</div>
+        <div style="font-size:2.2rem;font-weight:800;color:#e63946"><?= count($offres) ?></div>
+        <div style="font-size:.82rem;color:#8899bb">Offres publiées</div>
       </div>
       <div class="col-4">
-        <div style="font-size:2.2rem;font-weight:800;color:#f4a261"><?= $stats['admins'] ?></div>
-        <div style="font-size:.82rem;color:#8899bb">Administrateurs</div>
+        <div style="font-size:2.2rem;font-weight:800;color:#f4a261"><?= count($candidatures) ?></div>
+        <div style="font-size:.82rem;color:#8899bb">Candidatures reçues</div>
       </div>
       <div class="col-4">
-        <div style="font-size:2.2rem;font-weight:800;color:#2a9d8f"><?= count($profils) ?></div>
-        <div style="font-size:.82rem;color:#8899bb">Profils crees</div>
+        <div style="font-size:2.2rem;font-weight:800;color:#2a9d8f">100%</div>
+        <div style="font-size:.82rem;color:#8899bb">Efficacité système</div>
       </div>
     </div>
   </div>

@@ -42,11 +42,11 @@ $sessionUser = $_SESSION['user'] ?? null;
                   class="nav-user-text"><?= htmlspecialchars($sessionUser['prenom'] . ' ' . $sessionUser['nom']) ?></span>
               </span>
             </li>
-            <li class="nav-item"><a class="nav-link nav-logout" href="<?= $baseUrl ?>/view/frontoffice/logout.php"><i
-                  class="fas fa-sign-out-alt me-1"></i>Deconnexion</a></li>
+            <li class="nav-item"><a class="nav-link" href="<?= $baseUrl ?>/view/frontoffice/logout.php"><i
+                  class="fas fa-sign-out-alt me-1"></i>Déconnexion</a></li>
             <?php if (($sessionUser['role'] ?? '') === 'admin'): ?>
               <li class="nav-item"><a class="nav-link admin-link"
-                  href="<?= $baseUrl ?>/view/backoffice/list_utilisateurs.php"><i
+                  href="<?= $baseUrl ?>/view/backoffice/list_offres.php"><i
                     class="fas fa-shield-alt me-1"></i>Admin</a></li>
             <?php endif; ?>
           <?php else: ?>

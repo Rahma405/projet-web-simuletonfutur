@@ -39,12 +39,18 @@ class UtilisateurC
     // ════════════════════════════════════════════════════════
     //  R — READ : liste complète
     // ════════════════════════════════════════════════════════
-    public function listUtilisateurs(): array
+    public function listUtilisateurs(string $search = '', string $sort = 'idUtilisateur DESC'): array
     {
         try {
-            $q = Config::getConnexion()
-                       ->prepare("SELECT * FROM utilisateur ORDER BY idUtilisateur DESC");
-            $q->execute();
+            $sql = "SELECT * FROM utilisateur";
+            $params = [];
+            if (!empty($search)) {
+                $sql .= " WHERE nom LIKE :search OR prenom LIKE :search OR email LIKE :search OR role LIKE :search";
+                $params[':search'] = '%' . $search . '%';
+            }
+            $sql .= " ORDER BY " . $sort;
+            $q = Config::getConnexion()->prepare($sql);
+            $q->execute($params);
             return $this->rowsToObjects($q->fetchAll());
         } catch (PDOException $e) { return []; }
     }

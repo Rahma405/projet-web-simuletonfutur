@@ -4,7 +4,12 @@ require_once __DIR__ . '/../../controller/CandidatureC.php';
 
 $ctrl          = new CandidatureC();
 $pageTitle     = 'Candidatures reçues';
-$candidatures  = $ctrl->listAll();
+
+// Get search and sort parameters
+$search = $_GET['search'] ?? '';
+$sort = $_GET['sort'] ?? 'c.idCandidature DESC';
+
+$candidatures  = $ctrl->listAll($search, $sort);
 
 require_once __DIR__ . '/layouts/header.php';
 ?>
@@ -25,6 +30,28 @@ require_once __DIR__ . '/layouts/header.php';
   </div>
   <div class="card-body p-4">
 
+    <!-- Search and Sort Form -->
+    <form method="GET" class="row g-3 mb-4">
+      <div class="col-md-6">
+        <input type="text" name="search" class="form-control" placeholder="Rechercher par nom, prénom, email, compétences, localisation..." value="<?= htmlspecialchars($search) ?>">
+      </div>
+      <div class="col-md-4">
+        <select name="sort" class="form-select">
+          <option value="c.idCandidature DESC" <?= $sort == 'c.idCandidature DESC' ? 'selected' : '' ?>>Trier par ID (descendant)</option>
+          <option value="c.idCandidature ASC" <?= $sort == 'c.idCandidature ASC' ? 'selected' : '' ?>>Trier par ID (ascendant)</option>
+          <option value="u.nom ASC" <?= $sort == 'u.nom ASC' ? 'selected' : '' ?>>Trier par nom (A-Z)</option>
+          <option value="u.nom DESC" <?= $sort == 'u.nom DESC' ? 'selected' : '' ?>>Trier par nom (Z-A)</option>
+          <option value="u.prenom ASC" <?= $sort == 'u.prenom ASC' ? 'selected' : '' ?>>Trier par prénom (A-Z)</option>
+          <option value="u.prenom DESC" <?= $sort == 'u.prenom DESC' ? 'selected' : '' ?>>Trier par prénom (Z-A)</option>
+          <option value="c.localisation ASC" <?= $sort == 'c.localisation ASC' ? 'selected' : '' ?>>Trier par localisation (A-Z)</option>
+          <option value="c.localisation DESC" <?= $sort == 'c.localisation DESC' ? 'selected' : '' ?>>Trier par localisation (Z-A)</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100"><i class="fas fa-search me-1"></i>Filtrer</button>
+      </div>
+    </form>
+
     <?php if (empty($candidatures)): ?>
       <div class="text-center py-5">
         <i class="fas fa-file-alt fa-3x mb-3 text-muted"></i>
@@ -40,6 +67,7 @@ require_once __DIR__ . '/layouts/header.php';
               <th>Compétences</th>
               <th>Localisation</th>
               <th>CV</th>
+              <th class="text-center">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -81,6 +109,13 @@ require_once __DIR__ . '/layouts/header.php';
                 <?php else: ?>
                   <span class="text-muted">—</span>
                 <?php endif; ?>
+              </td>
+              <td class="text-center">
+                <a href="delete_candidature.php?id=<?= $c['idCandidature'] ?>"
+                   class="btn btn-sm btn-outline-danger btn-delete"
+                   title="Supprimer">
+                  <i class="fas fa-trash"></i>
+                </a>
               </td>
             </tr>
             <?php endforeach; ?>

@@ -4,7 +4,12 @@ require_once __DIR__ . '/../../controller/OffreC.php';
 
 $ctrl = new OffreC();
 $pageTitle = 'Offres disponibles';
-$offres = $ctrl->listOffres();
+
+// Get search and sort parameters
+$search = $_GET['search'] ?? '';
+$sort = $_GET['sort'] ?? 'idOffre DESC';
+
+$offres = $ctrl->listOffres($search, $sort);
 $sessionUser = $_SESSION['user'] ?? null;
 
 require_once __DIR__ . '/layouts/header.php';
@@ -33,12 +38,42 @@ require_once __DIR__ . '/layouts/header.php';
         <?php endif; ?>
     </div>
 
+    <!-- Search and Sort Form -->
+    <div class="card mb-4" style="background:#f8f9fa;border:none;">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-6">
+                    <input type="text" name="search" class="form-control" placeholder="Rechercher par titre, compétences ou localisation..." value="<?= htmlspecialchars($search) ?>">
+                </div>
+                <div class="col-md-4">
+                    <select name="sort" class="form-select">
+                        <option value="idOffre DESC" <?= $sort == 'idOffre DESC' ? 'selected' : '' ?>>Trier par ID (descendant)</option>
+                        <option value="idOffre ASC" <?= $sort == 'idOffre ASC' ? 'selected' : '' ?>>Trier par ID (ascendant)</option>
+                        <option value="titre ASC" <?= $sort == 'titre ASC' ? 'selected' : '' ?>>Trier par titre (A-Z)</option>
+                        <option value="titre DESC" <?= $sort == 'titre DESC' ? 'selected' : '' ?>>Trier par titre (Z-A)</option>
+                        <option value="localisation ASC" <?= $sort == 'localisation ASC' ? 'selected' : '' ?>>Trier par localisation (A-Z)</option>
+                        <option value="localisation DESC" <?= $sort == 'localisation DESC' ? 'selected' : '' ?>>Trier par localisation (Z-A)</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100"><i class="fas fa-search me-1"></i>Filtrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <?php if (empty($offres)): ?>
         <div class="card text-center p-5">
             <i class="fas fa-briefcase fa-3x mb-3 text-muted"></i>
             <p class="text-muted mb-0">Aucune offre disponible pour le moment.</p>
         </div>
     <?php else: ?>
+        <?php if (!empty($search)): ?>
+            <div class="alert alert-info mb-4">
+                <i class="fas fa-info-circle me-2"></i>
+                Résultats de recherche pour: <strong><?= htmlspecialchars($search) ?></strong> (<?= count($offres) ?> offre(s) trouvée(s))
+            </div>
+        <?php endif; ?>
         <div class="row g-3">
             <?php foreach ($offres as $o): ?>
                 <?php

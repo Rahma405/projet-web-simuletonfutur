@@ -4,7 +4,12 @@ require_once __DIR__ . '/../../controller/OffreC.php';
 
 $ctrl      = new OffreC();
 $pageTitle = 'Gestion des Offres';
-$offres    = $ctrl->listOffres();
+
+// Get search and sort parameters
+$search = $_GET['search'] ?? '';
+$sort = $_GET['sort'] ?? 'idOffre DESC';
+
+$offres    = $ctrl->listOffres($search, $sort);
 
 $message = $_SESSION['message'] ?? null;
 if (isset($_SESSION['message'])) unset($_SESSION['message']);
@@ -35,6 +40,26 @@ require_once __DIR__ . '/layouts/header.php';
     <a href="add_offre.php" class="btn btn-sm btn-red"><i class="fas fa-plus me-1"></i>Ajouter une offre</a>
   </div>
   <div class="card-body p-4">
+
+    <!-- Search and Sort Form -->
+    <form method="GET" class="row g-3 mb-4">
+      <div class="col-md-6">
+        <input type="text" name="search" class="form-control" placeholder="Rechercher par titre, compétences ou localisation..." value="<?= htmlspecialchars($search) ?>">
+      </div>
+      <div class="col-md-4">
+        <select name="sort" class="form-select">
+          <option value="idOffre DESC" <?= $sort == 'idOffre DESC' ? 'selected' : '' ?>>Trier par ID (descendant)</option>
+          <option value="idOffre ASC" <?= $sort == 'idOffre ASC' ? 'selected' : '' ?>>Trier par ID (ascendant)</option>
+          <option value="titre ASC" <?= $sort == 'titre ASC' ? 'selected' : '' ?>>Trier par titre (A-Z)</option>
+          <option value="titre DESC" <?= $sort == 'titre DESC' ? 'selected' : '' ?>>Trier par titre (Z-A)</option>
+          <option value="localisation ASC" <?= $sort == 'localisation ASC' ? 'selected' : '' ?>>Trier par localisation (A-Z)</option>
+          <option value="localisation DESC" <?= $sort == 'localisation DESC' ? 'selected' : '' ?>>Trier par localisation (Z-A)</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100"><i class="fas fa-search me-1"></i>Filtrer</button>
+      </div>
+    </form>
 
     <?php if (empty($offres)): ?>
       <div class="text-center py-5">

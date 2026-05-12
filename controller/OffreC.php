@@ -34,12 +34,18 @@ class OffreC
     // ════════════════════════════════════════════════════════
     //  R — READ : liste complète
     // ════════════════════════════════════════════════════════
-    public function listOffres(): array
+    public function listOffres(string $search = '', string $sort = 'idOffre DESC'): array
     {
         try {
-            $q = Config::getConnexion()
-                ->prepare("SELECT * FROM offre ORDER BY idOffre DESC");
-            $q->execute();
+            $sql = "SELECT * FROM offre";
+            $params = [];
+            if (!empty($search)) {
+                $sql .= " WHERE titre LIKE :search OR competences LIKE :search OR localisation LIKE :search";
+                $params[':search'] = '%' . $search . '%';
+            }
+            $sql .= " ORDER BY " . $sort;
+            $q = Config::getConnexion()->prepare($sql);
+            $q->execute($params);
             return $q->fetchAll();
         } catch (PDOException $e) {
             return [];

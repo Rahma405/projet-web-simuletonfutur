@@ -35,16 +35,20 @@ class ProfilC
     // ════════════════════════════════════════════════════════
     //  R — READ : tous les profils (avec jointure utilisateur)
     // ════════════════════════════════════════════════════════
-    public function listProfils(): array
+    public function listProfils(string $search = '', string $sort = 'p.idProfil DESC'): array
     {
         try {
-            $q = Config::getConnexion()->prepare(
-                "SELECT p.*, u.nom, u.prenom, u.email, u.role
-                 FROM profil p
-                 JOIN utilisateur u ON p.idUtilisateur = u.idUtilisateur
-                 ORDER BY p.idProfil DESC"
-            );
-            $q->execute();
+            $sql = "SELECT p.*, u.nom, u.prenom, u.email, u.role
+                    FROM profil p
+                    JOIN utilisateur u ON p.idUtilisateur = u.idUtilisateur";
+            $params = [];
+            if (!empty($search)) {
+                $sql .= " WHERE u.nom LIKE :search OR u.prenom LIKE :search OR u.email LIKE :search OR p.bio LIKE :search OR p.ville LIKE :search OR p.pays LIKE :search";
+                $params[':search'] = '%' . $search . '%';
+            }
+            $sql .= " ORDER BY " . $sort;
+            $q = Config::getConnexion()->prepare($sql);
+            $q->execute($params);
             return $q->fetchAll();
         } catch (PDOException $e) { return []; }
     }

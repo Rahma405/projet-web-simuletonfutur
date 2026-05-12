@@ -26,20 +26,6 @@ $baseUrl = rtrim($baseUrl, '/');
     <div class="sidebar-section">Gestion</div>
     <nav>
       <a href="<?= $baseUrl ?>/index.php"><i class="fas fa-globe"></i> Site public</a>
-      <a href="<?= $baseUrl ?>/view/backoffice/list_utilisateurs.php"
-        class="<?= strpos($_SERVER['PHP_SELF'], 'utilisateur') !== false ? 'active' : '' ?>">
-        <i class="fas fa-users"></i> Utilisateurs
-      </a>
-      <a href="<?= $baseUrl ?>/view/backoffice/add_utilisateur.php"><i class="fas fa-user-plus"></i> Ajouter
-        utilisateur</a>
-    </nav>
-    <div class="sidebar-section">Profils</div>
-    <nav>
-      <a href="<?= $baseUrl ?>/view/backoffice/list_profils.php"
-        class="<?= strpos($_SERVER['PHP_SELF'], 'profil') !== false ? 'active' : '' ?>">
-        <i class="fas fa-id-card"></i> Profils
-      </a>
-      <a href="<?= $baseUrl ?>/view/backoffice/add_profil.php"><i class="fas fa-plus-circle"></i> Ajouter profil</a>
     </nav>
     <div class="sidebar-section">Offres</div>
     <nav>

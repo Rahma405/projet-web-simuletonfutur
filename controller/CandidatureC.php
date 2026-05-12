@@ -89,16 +89,20 @@ class CandidatureC
     // ════════════════════════════════════════════════════════
     //  R — READ : toutes les candidatures (avec infos utilisateur)
     // ════════════════════════════════════════════════════════
-    public function listAll(): array
+    public function listAll(string $search = '', string $sort = 'c.idCandidature DESC'): array
     {
         try {
-            $q = Config::getConnexion()->prepare(
-                "SELECT c.*, u.nom, u.prenom, u.email
-                 FROM candidature c
-                 JOIN utilisateur u ON c.idUtilisateur = u.idUtilisateur
-                 ORDER BY c.idCandidature DESC"
-            );
-            $q->execute();
+            $sql = "SELECT c.*, u.nom, u.prenom, u.email
+                    FROM candidature c
+                    JOIN utilisateur u ON c.idUtilisateur = u.idUtilisateur";
+            $params = [];
+            if (!empty($search)) {
+                $sql .= " WHERE u.nom LIKE :search OR u.prenom LIKE :search OR u.email LIKE :search OR c.skills LIKE :search OR c.localisation LIKE :search";
+                $params[':search'] = '%' . $search . '%';
+            }
+            $sql .= " ORDER BY " . $sort;
+            $q = Config::getConnexion()->prepare($sql);
+            $q->execute($params);
             return $q->fetchAll();
         } catch (PDOException $e) { return []; }
     }
