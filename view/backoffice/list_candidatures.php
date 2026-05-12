@@ -105,7 +105,7 @@ require_once __DIR__ . '/layouts/header.php';
               <td style="font-size:.83rem">
                 <?php if ($c['cv']): ?>
                   <i class="fas fa-paperclip me-1" style="color:#f4a261"></i>
-                  <?= htmlspecialchars($c['cv']) ?>
+                  <a href="<?= htmlspecialchars($c['cv']) ?>" target="_blank"><?= htmlspecialchars(basename($c['cv'])) ?></a>
                 <?php else: ?>
                   <span class="text-muted">—</span>
                 <?php endif; ?>
