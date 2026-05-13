@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cmd /c \"where wamp\")",
+      "Bash(cmd /c \"dir C:\\\\wamp64\\\\www /b\")",
+      "Bash(cmd /c \"dir C:\\\\wamp\\\\www /b\")",
+      "Bash(cmd /c \"dir C:\\\\xampp\\\\htdocs /b\")"
+    ]
+  }
+}
